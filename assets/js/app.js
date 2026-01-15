@@ -90,12 +90,21 @@
 
   /**
    * Aktualizuje status bar
+   * @param {string} message - główna wiadomość
+   * @param {string} type - typ statusu (ok, bad, warn)
+   * @param {string} updateTime - opcjonalna data aktualizacji
    */
-  function setStatus(message, type) {
+  function setStatus(message, type, updateTime) {
     var bar = $('#statusBar');
     if (!bar) return;
     bar.className = 'badge' + (type ? ' ' + type : '');
-    bar.textContent = message;
+    
+    if (updateTime) {
+      bar.innerHTML = '<span>' + escapeHtml(message) + '</span>' +
+        '<span class="status-update">aktualizacja: ' + escapeHtml(updateTime) + '</span>';
+    } else {
+      bar.textContent = message;
+    }
   }
 
   /**
@@ -585,8 +594,8 @@
           }
         }
 
-        var genInfo = data.meta && data.meta.generated_at ? ' • indeks: ' + data.meta.generated_at : '';
-        setStatus('Materiały: ' + materialsState.data.length + genInfo, 'ok');
+        var updateTime = data.meta && data.meta.generated_at ? data.meta.generated_at : '';
+        setStatus('Materiały: ' + materialsState.data.length, 'ok', updateTime);
       })
       .catch(function(err) {
         console.error('Błąd ładowania materiałów:', err);
@@ -765,8 +774,8 @@
         fillAnnouncementFilters(announcementsState.data);
         renderAnnouncements();
 
-        var genInfo = data.meta && data.meta.generated_at ? ' • aktualizacja: ' + data.meta.generated_at : '';
-        setStatus('Ogłoszenia: ' + announcementsState.data.length + genInfo, 'ok');
+        var updateTime = data.meta && data.meta.generated_at ? data.meta.generated_at : '';
+        setStatus('Ogłoszenia: ' + announcementsState.data.length, 'ok', updateTime);
       })
       .catch(function(err) {
         console.error('Błąd ładowania ogłoszeń:', err);
