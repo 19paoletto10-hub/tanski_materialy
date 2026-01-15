@@ -370,15 +370,15 @@
 
     // Brak materiałów
     if (materials.length === 0) {
-      grid.innerHTML = '<div class="empty"><h3>Brak materiałów</h3>' +
-        '<p class="muted">Dodaj plik do <code>wyklady/</code> i wykonaj commit/push. GitHub Actions wygeneruje listę.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="emptyIcon">📚</div><div class="emptyTitle">Brak materiałów</div>' +
+        '<div class="emptyDesc">Dodaj plik do <code>wyklady/</code> i wykonaj commit/push. GitHub Actions wygeneruje listę.</div></div>';
       return;
     }
 
     // Brak wyników
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="empty"><h3>Brak wyników</h3>' +
-        '<p class="muted">Zmień filtry lub frazę wyszukiwania.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="emptyIcon">🔍</div><div class="emptyTitle">Brak wyników</div>' +
+        '<div class="emptyDesc">Zmień filtry lub frazę wyszukiwania.</div></div>';
       return;
     }
 
@@ -392,7 +392,15 @@
       var url = (m.url || '').trim();
       var hasUrl = url.length > 0;
       var isPdf = hasUrl && /\.pdf$/i.test(url);
+      var isDocx = hasUrl && /\.(docx?|doc)$/i.test(url);
+      var isPptx = hasUrl && /\.(pptx?|ppt)$/i.test(url);
       var fullUrl = hasUrl ? buildUrl(url) : '';
+
+      // Wybierz ikonę w zależności od typu pliku
+      var fileIcon = '📄';
+      if (isPdf) fileIcon = '📕';
+      else if (isDocx) fileIcon = '📘';
+      else if (isPptx) fileIcon = '📙';
 
       var pillsHtml = '';
       if (typeStr) pillsHtml += '<span class="pill teal"><span class="dot"></span>' + typeStr + '</span>';
@@ -404,23 +412,28 @@
         actionsHtml = '<span class="muted">Plik niedostępny</span>';
       } else if (isPdf) {
         actionsHtml = '<button class="btn previewBtn" type="button" data-url="' + escapeHtml(url) + 
-          '" data-title="' + title + '">Podgląd</button>' +
-          '<a class="btn ghost" href="' + escapeHtml(fullUrl) + '" download>Pobierz</a>';
+          '" data-title="' + title + '">👁️ Podgląd</button>' +
+          '<a class="btn ghost" href="' + escapeHtml(fullUrl) + '" download>⬇️ Pobierz</a>';
       } else {
-        actionsHtml = '<a class="btn" href="' + escapeHtml(fullUrl) + '" download>Pobierz</a>';
+        actionsHtml = '<a class="btn" href="' + escapeHtml(fullUrl) + '" download>⬇️ Pobierz</a>';
       }
 
       var tagsHtml = '';
       if (Array.isArray(m.tags) && m.tags.length) {
-        tagsHtml = '<div class="muted"><code>tagi:</code> ' + escapeHtml(m.tags.join(', ')) + '</div>';
+        tagsHtml = '<span class="muted">🏷️ ' + escapeHtml(m.tags.join(', ')) + '</span>';
       }
 
       return '<article class="card">' +
-        '<div class="cardTop"><div><h3 class="cardTitle">' + title + '</h3>' +
-        '<div class="cardMeta">' + desc + '</div></div>' +
+        '<div class="cardTop">' +
+        '<div class="cardIcon">' + fileIcon + '</div>' +
+        '<div class="cardContent"><h3 class="cardTitle">' + title + '</h3>' +
+        '<div class="cardMeta">' +
+        (dateStr ? '<span class="metaItem"><span class="metaIcon">📅</span> ' + dateStr + '</span>' : '') +
+        (typeStr ? '<span class="metaItem"><span class="metaIcon">📁</span> ' + typeStr + '</span>' : '') +
+        '</div></div>' +
         '<div class="pills">' + pillsHtml + '</div></div>' +
-        '<div class="cardBody">' + tagsHtml + '</div>' +
-        '<div class="cardBottom">' + actionsHtml + '</div></article>';
+        (desc ? '<div class="cardBody"><p>' + desc + '</p>' + (tagsHtml ? tagsHtml : '') + '</div>' : (tagsHtml ? '<div class="cardBody">' + tagsHtml + '</div>' : '')) +
+        '<div class="cardBottom"><div class="cardFooterInfo">📎 ' + (isPdf ? 'PDF' : isDocx ? 'DOCX' : isPptx ? 'PPTX' : 'Plik') + '</div><div class="cardActions">' + actionsHtml + '</div></div></article>';
     }).join('');
 
     grid.innerHTML = html;
@@ -553,15 +566,15 @@
 
     // Brak ogłoszeń
     if (announcements.length === 0) {
-      grid.innerHTML = '<div class="empty"><h3>Brak ogłoszeń</h3>' +
-        '<p class="muted">Prowadzący publikuje ogłoszenia w <code>data/announcements.json</code>.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="emptyIcon">📢</div><div class="emptyTitle">Brak ogłoszeń</div>' +
+        '<div class="emptyDesc">Prowadzący publikuje ogłoszenia w <code>data/announcements.json</code>.</div></div>';
       return;
     }
 
     // Brak wyników
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="empty"><h3>Brak wyników</h3>' +
-        '<p class="muted">Zmień filtr tagów lub wyszukiwanie.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="emptyIcon">🔍</div><div class="emptyTitle">Brak wyników</div>' +
+        '<div class="emptyDesc">Zmień filtr tagów lub wyszukiwanie.</div></div>';
       return;
     }
 
@@ -572,6 +585,9 @@
       var dateStr = a.date ? escapeHtml(a.date) : '';
       var expiresStr = a.expires ? escapeHtml(a.expires) : '';
       var isImportant = !!a.important;
+
+      // Ikona w zależności od typu ogłoszenia
+      var announcementIcon = isImportant ? '🔔' : '📢';
 
       var pillsHtml = '';
       if (isImportant) {
@@ -584,15 +600,20 @@
 
       var tagsHtml = '';
       if (Array.isArray(a.tags) && a.tags.length) {
-        tagsHtml = '<span class="muted"><code>tagi:</code> ' + escapeHtml(a.tags.join(', ')) + '</span>';
+        tagsHtml = '<span class="muted">🏷️ ' + escapeHtml(a.tags.join(', ')) + '</span>';
       }
 
       return '<article class="card">' +
-        '<div class="cardTop"><div><h3 class="cardTitle">' + title + '</h3>' +
-        '<div class="cardMeta">' + (dateStr ? 'Data: ' + dateStr : '') + '</div></div>' +
+        '<div class="cardTop">' +
+        '<div class="cardIcon">' + announcementIcon + '</div>' +
+        '<div class="cardContent"><h3 class="cardTitle">' + title + '</h3>' +
+        '<div class="cardMeta">' +
+        (dateStr ? '<span class="metaItem"><span class="metaIcon">📅</span> ' + dateStr + '</span>' : '') +
+        (expiresStr ? '<span class="metaItem"><span class="metaIcon">⏰</span> Ważne do: ' + expiresStr + '</span>' : '') +
+        '</div></div>' +
         '<div class="pills">' + pillsHtml + '</div></div>' +
         '<div class="cardBody">' + body + '</div>' +
-        '<div class="cardBottom">' + (tagsHtml || '<span></span>') + '</div></article>';
+        '<div class="cardBottom"><div class="cardFooterInfo">' + (isImportant ? '⚡ Priorytet' : '💬 Ogłoszenie') + '</div><div class="cardActions">' + (tagsHtml || '<span></span>') + '</div></div></article>';
     }).join('');
 
     grid.innerHTML = html;
