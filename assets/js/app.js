@@ -162,6 +162,41 @@
   }
 
   // ============================================
+  // FILTERS TOGGLE (MOBILE)
+  // ============================================
+
+  function initFiltersToggle() {
+    var toggleBtn = $('#filtersToggle');
+    var wrapper = toggleBtn ? toggleBtn.closest('.controls-wrapper') : null;
+    
+    if (!toggleBtn || !wrapper) return;
+
+    toggleBtn.addEventListener('click', function() {
+      var isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      
+      toggleBtn.setAttribute('aria-expanded', !isExpanded);
+      wrapper.classList.toggle('expanded', !isExpanded);
+    });
+
+    // Zamknij filtry po wybraniu opcji na mobile (lepszy UX)
+    var filtersPanel = $('#filtersPanel');
+    if (filtersPanel) {
+      var selects = $$('select', filtersPanel);
+      selects.forEach(function(sel) {
+        sel.addEventListener('change', function() {
+          // Sprawdź czy jesteśmy na mobile
+          if (window.innerWidth <= 768) {
+            setTimeout(function() {
+              toggleBtn.setAttribute('aria-expanded', 'false');
+              wrapper.classList.remove('expanded');
+            }, 150);
+          }
+        });
+      });
+    }
+  }
+
+  // ============================================
   // FETCH JSON
   // ============================================
 
@@ -245,8 +280,25 @@
     isOpen: false
   };
 
+  /**
+   * Sprawdza czy urządzenie jest mobilne (telefon/tablet)
+   */
+  function isMobileDevice() {
+    return window.innerWidth <= 768 || 
+           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   function openModal(title, pdfUrl) {
     if (!pdfUrl) return;
+    
+    var fullUrl = buildUrl(pdfUrl);
+    
+    // Na urządzeniach mobilnych otwórz PDF bezpośrednio w nowej karcie
+    // Przeglądarki mobilne mają lepszą natywną obsługę PDF
+    if (isMobileDevice()) {
+      window.open(fullUrl, '_blank');
+      return;
+    }
     
     var modal = $('#pdfModal');
     var frame = $('#pdfFrame');
@@ -254,8 +306,6 @@
     var downloadEl = $('#pdfDownload');
     
     if (!modal || !frame) return;
-
-    var fullUrl = buildUrl(pdfUrl);
     
     if (titleEl) titleEl.textContent = title || 'Podgląd PDF';
     if (frame) frame.src = fullUrl;
@@ -858,6 +908,7 @@
     try {
       initTheme();
       initModal();
+      initFiltersToggle();
 
       // Załaduj konfigurację, a następnie inicjalizuj odpowiednią stronę
       loadConfig().then(function() {

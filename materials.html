@@ -63,26 +63,32 @@
         </div>
       </div>
 
-      <div class="controls">
-        <div class="field">
-          <label for="mQuery">Szukaj</label>
-          <input id="mQuery" type="search" placeholder="np. reumatologia, diagnostyka, RZS…" autocomplete="off">
-        </div>
-        <div class="field">
-          <label for="mType">Typ</label>
-          <select id="mType">
-            <option value="">Wszystkie</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="mYear">Rok</label>
-          <select id="mYear">
-            <option value="">Wszystkie</option>
-          </select>
-        </div>
-        <div class="field actions">
-          <label>&nbsp;</label>
-          <button id="mReset" class="btn" type="button">Wyczyść</button>
+      <div class="controls-wrapper">
+        <button class="controls-toggle" id="filtersToggle" type="button" aria-expanded="false" aria-controls="filtersPanel">
+          <span class="controls-toggle-text">Filtry i wyszukiwanie</span>
+          <span class="controls-toggle-icon" aria-hidden="true">▼</span>
+        </button>
+        <div class="controls" id="filtersPanel">
+          <div class="field">
+            <label for="mQuery">Szukaj</label>
+            <input id="mQuery" type="search" placeholder="np. reumatologia, diagnostyka, RZS…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="mType">Typ</label>
+            <select id="mType">
+              <option value="">Wszystkie</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="mYear">Rok</label>
+            <select id="mYear">
+              <option value="">Wszystkie</option>
+            </select>
+          </div>
+          <div class="field actions">
+            <label>&nbsp;</label>
+            <button id="mReset" class="btn" type="button">Wyczyść</button>
+          </div>
         </div>
       </div>
 

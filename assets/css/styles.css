@@ -208,6 +208,39 @@ a{color:inherit}
 .metaDot.warn{background: rgba(180,83,9,.85)}
 
 /* Controls */
+.controls-wrapper {
+  position: relative;
+}
+
+.controls-toggle {
+  display: none;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(0,178,186,.06), transparent);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .2s ease;
+}
+
+.controls-toggle:hover {
+  background: linear-gradient(180deg, rgba(0,178,186,.12), transparent);
+}
+
+.controls-toggle-icon {
+  transition: transform .25s ease;
+  font-size: 12px;
+}
+
+.controls-toggle[aria-expanded="true"] .controls-toggle-icon {
+  transform: rotate(180deg);
+}
+
 .controls{
   display:grid;
   grid-template-columns: 1.6fr .7fr .7fr .5fr;
@@ -937,8 +970,25 @@ a{color:inherit}
     font-size: 11px;
   }
   
+  /* Zwijane filtry na mobile */
+  .controls-toggle {
+    display: flex;
+  }
+  
   .controls {
     grid-template-columns: 1fr 1fr;
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transition: max-height .3s ease, padding .3s ease, opacity .25s ease;
+  }
+  
+  .controls-wrapper.expanded .controls {
+    max-height: 400px;
+    padding: 14px 18px 14px;
+    opacity: 1;
   }
   
   .field.actions {
@@ -992,9 +1042,17 @@ a{color:inherit}
     display: none;
   }
   
+  .controls-toggle {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
   .controls {
     grid-template-columns: 1fr;
-    padding: 10px 12px;
+  }
+  
+  .controls-wrapper.expanded .controls {
+    padding: 12px 14px 14px;
   }
   
   .field.actions {
