@@ -16,6 +16,7 @@
     // Usuń "./" z początku ścieżki jeśli istnieje
     const cleanPath = path.replace(/^\.\//,  '').trim();
     if(!cleanPath) return '';
+    // Zwróć pełny URL
     return BASE_URL + cleanPath;
   };
 

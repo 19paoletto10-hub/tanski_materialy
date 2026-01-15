@@ -1,8 +1,10 @@
 # Portal dydaktyczny (PWr / Wydział Medyczny) — final stabilny
 
+Strona główna: **Ogłoszenia** (`index.html`)
+
 Dwie zakładki:
+- **Ogłoszenia** (strona główna) — `data/announcements.json`
 - **Materiały** — auto-indeks z folderu `wyklady/` → `data/materials.json` (generuje GitHub Actions)
-- **Ogłoszenia** — `data/announcements.json`
 
 ## Jak dodać materiał (PDF/DOCX/PPTX)
 1. Wgraj plik do `wyklady/`
