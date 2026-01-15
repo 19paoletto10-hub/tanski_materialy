@@ -328,184 +328,118 @@ a{color:inherit}
   color: var(--text);
 }
 
-/* Grid cards */
+/* Grid cards - uproszczony układ */
 .grid{
   padding: 0 18px 18px;
-  display:flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
 }
+
 .card{
-  width: 100%;
-  border:1px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   background: var(--card);
-  overflow:hidden;
+  overflow: hidden;
   transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
-.card::before{
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--med-teal), var(--pwr-red));
-  opacity: 0;
-  transition: opacity .25s ease;
-}
+
 .card:hover{
-  transform: translateY(-3px);
-  border-color: rgba(0,178,186,.35);
-  box-shadow: 0 20px 40px rgba(0,178,186,.12), 0 8px 16px rgba(0,0,0,.08);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0,0,0,.12);
+  border-color: var(--med-teal);
 }
-.card:hover::before{
-  opacity: 1;
-}
-.cardTop{
-  padding: 16px 20px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
+
+/* Kolorowe paski na górze kart */
+.card.pdf { border-top: 4px solid #dc2626; }
+.card.docx { border-top: 4px solid #2563eb; }
+.card.pptx { border-top: 4px solid #ea580c; }
+
+.cardHeader{
+  padding: 20px;
+  display: flex;
   gap: 16px;
-  background: linear-gradient(135deg, rgba(0,178,186,.03) 0%, transparent 50%);
+  align-items: flex-start;
 }
+
 .cardIcon{
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 14px;
   display: grid;
   place-items: center;
-  font-size: 22px;
-  background: linear-gradient(135deg, rgba(0,178,186,.12), rgba(154,52,45,.08));
-  border: 1px solid var(--line);
+  font-size: 28px;
   flex-shrink: 0;
 }
-.cardContent{
+
+.cardIcon.pdf{ background: rgba(220,38,38,.1); }
+.cardIcon.docx{ background: rgba(37,99,235,.1); }
+.cardIcon.pptx{ background: rgba(234,88,12,.1); }
+
+.cardInfo{
   flex: 1;
   min-width: 0;
 }
+
 .cardTitle{
-  margin:0;
-  font-size: 18px;
-  font-weight: 900;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.cardMeta{
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.cardMeta .metaItem{
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.cardMeta .metaIcon{
-  font-size: 14px;
-  opacity: 0.7;
-}
-.pills{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-  flex-shrink: 0;
-}
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  border:1px solid var(--line);
-  background: var(--card2);
-  color: var(--muted);
+  margin: 0;
+  font-size: 17px;
   font-weight: 800;
-  font-size: 13px;
-  transition: all .2s ease;
-}
-.pill:hover{
-  transform: scale(1.02);
-}
-.pill .dot{
-  width:8px;
-  height:8px;
-  border-radius:999px;
-  background: rgba(16,24,40,.28);
-  animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{
-  0%, 100%{ opacity: 1; }
-  50%{ opacity: 0.5; }
-}
-.pill.teal{
-  border-color: rgba(0,178,186,.35);
-  background: linear-gradient(135deg, rgba(0,178,186,.08), rgba(0,178,186,.04));
-  color: var(--teal-text);
-}
-.pill.teal .dot{background: rgba(0,178,186,.9)}
-.pill.red{
-  border-color: rgba(154,52,45,.35);
-  background: linear-gradient(135deg, rgba(154,52,45,.1), rgba(154,52,45,.05));
-  color: var(--red-text);
-}
-.pill.red .dot{background: rgba(154,52,45,.9)}
-.pill.warn{
-  border-color: rgba(180,83,9,.35);
-  background: linear-gradient(135deg, rgba(180,83,9,.1), rgba(180,83,9,.05));
-  color: var(--warn-text);
-}
-.pill.warn .dot{background: rgba(180,83,9,.9)}
-@supports (color: color-mix(in oklab, red, blue)) {
-  .pill.teal { color: color-mix(in oklab, var(--med-teal), var(--text) 20%); }
-  .pill.red { color: color-mix(in oklab, var(--pwr-red), var(--text) 20%); }
-  .pill.warn { color: color-mix(in oklab, #b45309, var(--text) 20%); }
+  line-height: 1.4;
+  color: var(--text);
 }
 
-.cardBody{
-  padding: 0 20px 18px;
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.65;
-  max-width: 80ch;
-}
-.cardBody p{
-  margin: 0;
-}
-.cardBody ul, .cardBody ol{
-  margin: 8px 0;
-  padding-left: 20px;
-}
-.cardBottom{
-  padding: 14px 20px;
-  border-top: 1px solid var(--line);
-  display:flex;
-  gap: 12px;
-  justify-content:space-between;
-  align-items: center;
-  background: linear-gradient(180deg, transparent, rgba(0,178,186,.04));
-}
-.cardActions{
+.cardMeta{
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
-.cardFooterInfo{
-  color: var(--muted);
-  font-size: 12px;
-  display: flex;
+
+.cardType{
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--card2);
+  color: var(--muted);
+}
+
+.card.pdf .cardType{ background: rgba(220,38,38,.1); color: #dc2626; }
+.card.docx .cardType{ background: rgba(37,99,235,.1); color: #2563eb; }
+.card.pptx .cardType{ background: rgba(234,88,12,.1); color: #ea580c; }
+
+.cardDate{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cardDesc{
+  padding: 0 20px 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cardActions{
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  background: var(--card2);
+}
+
+.cardActions .btn{
+  flex: 1;
+  justify-content: center;
 }
 
 .empty{
@@ -694,16 +628,25 @@ a{color:inherit}
   .grid {
     padding: 0 14px 14px;
     gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  
+  .cardHeader {
+    padding: 16px;
   }
   
   .cardIcon {
-    width: 42px;
-    height: 42px;
-    font-size: 18px;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
   }
   
   .cardTitle {
-    font-size: 15px;
+    font-size: 16px;
+  }
+  
+  .cardActions {
+    padding: 14px 16px;
   }
 }
 
@@ -736,13 +679,15 @@ a{color:inherit}
     grid-column: span 2;
   }
   
-  .cardTop {
-    flex-direction: column;
-    gap: 8px;
+  .cardHeader {
+    padding: 14px;
+    gap: 12px;
   }
   
-  .pills {
-    justify-content: flex-start;
+  .cardIcon {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
   }
   
   .cardBottom {

@@ -397,7 +397,6 @@
       var desc = escapeHtml(m.description || '');
       var typeStr = escapeHtml((m.type || '').toUpperCase());
       var dateStr = m.date ? escapeHtml(m.date) : '';
-      var yearStr = m.year ? escapeHtml(String(m.year)) : '';
       var url = (m.url || '').trim();
       var hasUrl = url.length > 0;
       var isPdf = hasUrl && /\.pdf$/i.test(url);
@@ -405,44 +404,38 @@
       var isPptx = hasUrl && /\.(pptx?|ppt)$/i.test(url);
       var fullUrl = hasUrl ? buildUrl(url) : '';
 
-      // Wybierz ikonę w zależności od typu pliku
+      // Wybierz ikonę i kolor w zależności od typu pliku
       var fileIcon = '📄';
-      if (isPdf) fileIcon = '📕';
-      else if (isDocx) fileIcon = '📘';
-      else if (isPptx) fileIcon = '📙';
-
-      var pillsHtml = '';
-      if (typeStr) pillsHtml += '<span class="pill teal"><span class="dot"></span>' + typeStr + '</span>';
-      if (dateStr) pillsHtml += '<span class="pill red"><span class="dot"></span>' + dateStr + '</span>';
-      else if (yearStr) pillsHtml += '<span class="pill"><span class="dot"></span>' + yearStr + '</span>';
+      var fileClass = '';
+      if (isPdf) { fileIcon = '📕'; fileClass = 'pdf'; }
+      else if (isDocx) { fileIcon = '📘'; fileClass = 'docx'; }
+      else if (isPptx) { fileIcon = '📙'; fileClass = 'pptx'; }
 
       var actionsHtml = '';
       if (!hasUrl) {
         actionsHtml = '<span class="muted">Plik niedostępny</span>';
       } else if (isPdf) {
-        actionsHtml = '<button class="btn previewBtn" type="button" data-url="' + escapeHtml(url) + 
+        actionsHtml = '<button class="btn primary previewBtn" type="button" data-url="' + escapeHtml(url) + 
           '" data-title="' + title + '">👁️ Podgląd</button>' +
           '<a class="btn ghost" href="' + escapeHtml(fullUrl) + '" download>⬇️ Pobierz</a>';
       } else {
-        actionsHtml = '<a class="btn" href="' + escapeHtml(fullUrl) + '" download>⬇️ Pobierz</a>';
+        actionsHtml = '<a class="btn primary" href="' + escapeHtml(fullUrl) + '" download>⬇️ Pobierz</a>';
       }
 
-      var tagsHtml = '';
-      if (Array.isArray(m.tags) && m.tags.length) {
-        tagsHtml = '<span class="muted">🏷️ ' + escapeHtml(m.tags.join(', ')) + '</span>';
-      }
-
-      return '<article class="card">' +
-        '<div class="cardTop">' +
-        '<div class="cardIcon">' + fileIcon + '</div>' +
-        '<div class="cardContent"><h3 class="cardTitle">' + title + '</h3>' +
+      return '<article class="card ' + fileClass + '">' +
+        '<div class="cardHeader">' +
+        '<div class="cardIcon ' + fileClass + '">' + fileIcon + '</div>' +
+        '<div class="cardInfo">' +
+        '<h3 class="cardTitle">' + title + '</h3>' +
         '<div class="cardMeta">' +
-        (dateStr ? '<span class="metaItem"><span class="metaIcon">📅</span> ' + dateStr + '</span>' : '') +
-        (typeStr ? '<span class="metaItem"><span class="metaIcon">📁</span> ' + typeStr + '</span>' : '') +
-        '</div></div>' +
-        '<div class="pills">' + pillsHtml + '</div></div>' +
-        (desc ? '<div class="cardBody"><p>' + desc + '</p>' + (tagsHtml ? tagsHtml : '') + '</div>' : (tagsHtml ? '<div class="cardBody">' + tagsHtml + '</div>' : '')) +
-        '<div class="cardBottom"><div class="cardFooterInfo">📎 ' + (isPdf ? 'PDF' : isDocx ? 'DOCX' : isPptx ? 'PPTX' : 'Plik') + '</div><div class="cardActions">' + actionsHtml + '</div></div></article>';
+        '<span class="cardType">' + typeStr + '</span>' +
+        (dateStr ? '<span class="cardDate">' + dateStr + '</span>' : '') +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        (desc ? '<div class="cardDesc">' + desc + '</div>' : '') +
+        '<div class="cardActions">' + actionsHtml + '</div>' +
+        '</article>';
     }).join('');
 
     grid.innerHTML = html;
