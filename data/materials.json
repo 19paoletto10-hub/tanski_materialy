@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-01-15T02:25:32Z"
+    "generated_at": "2026-01-15T04:07:07Z"
   },
   "items": [
     {
@@ -39,6 +39,28 @@
       "description": "Plik: PPTX",
       "url": "wyklady/stany_zagrajace_w_reumatologii_final_v2.pptx",
       "preview": ""
+    },
+    {
+      "id": "wyklady-stany-zagrajace-w-reumatologii-final-v2-pdf",
+      "title": "stany zagrajace w reumatologii final v2",
+      "type": "PDF",
+      "year": "",
+      "date": "",
+      "tags": [],
+      "description": "Plik: PDF",
+      "url": "wyklady/stany_zagrajace_w_reumatologii_final_v2.pdf",
+      "preview": "wyklady/stany_zagrajace_w_reumatologii_final_v2.pdf"
+    },
+    {
+      "id": "wyklady-ukladowe-zapalenie-naczyn-mp-2025-studenci-final-v4-pdf",
+      "title": "Ukladowe zapalenie naczyn MP 2025 STUDENCI FINAL v4",
+      "type": "PDF",
+      "year": "",
+      "date": "",
+      "tags": [],
+      "description": "Plik: PDF",
+      "url": "wyklady/Ukladowe_zapalenie_naczyn_MP_2025_STUDENCI_FINAL_v4.pdf",
+      "preview": "wyklady/Ukladowe_zapalenie_naczyn_MP_2025_STUDENCI_FINAL_v4.pdf"
     }
   ]
 }
