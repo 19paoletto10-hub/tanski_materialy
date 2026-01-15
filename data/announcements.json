@@ -16,3 +16,14 @@
     }
   ]
 }
+{
+  "items": [
+    {
+      "id": 1,
+      "date": "2026-01-15",
+      "title": "🎉 EGZAMIN ZALICZENIOWY - KOLOWKIUM",
+      "body": "Drodzy Studenci, Egzamin bedzię sparawdzał wiedzę jaką przyswoiliście w tym semestrze. W sekcji materiały udostępnam pliki przydatne do przygotowania notatek do egzaminu",
+      "archived": false
+    }
+  ]
+}
