@@ -422,17 +422,341 @@ a{color:inherit}
   flex-wrap:wrap;
 }
 
-/* Responsive */
-@media (max-width: 980px){
-  .layout{grid-template-columns: 1fr; }
-  .nav{position:sticky; top:72px; z-index:2}
-  .controls{grid-template-columns: 1fr 1fr; }
-  .toggle{padding-top: 0}
-  .card{grid-column: span 12}
-  .skeleton{grid-column: span 12}
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet landscape i mniejsze desktopy */
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 14px;
+    padding: 14px;
+  }
+  .card { grid-column: span 6; }
 }
-@media (max-width: 520px){
-  .controls{grid-template-columns: 1fr; }
-  .hero{flex-direction:column; align-items:flex-start}
-  .metaLine{justify-content:flex-start}
+
+/* Tablet portrait */
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .side {
+    position: sticky;
+    top: 68px;
+    z-index: 5;
+    background: var(--bg);
+    padding-bottom: 8px;
+  }
+  
+  .nav {
+    position: relative;
+    top: 0;
+    z-index: 2;
+  }
+  
+  /* Ukryj panele na mobile - zajmują za dużo miejsca */
+  .panel {
+    display: none;
+  }
+  
+  .controls {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  
+  .toggle {
+    padding-top: 0;
+  }
+  
+  .card {
+    grid-column: span 12;
+  }
+  
+  .skeleton {
+    grid-column: span 12;
+  }
+  
+  .hero {
+    padding: 14px 14px 10px;
+  }
+  
+  .hero h1 {
+    font-size: 20px;
+  }
+  
+  .grid {
+    padding: 0 14px 14px;
+    gap: 10px;
+  }
 }
+
+/* Duże telefony */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 10px 12px;
+  }
+  
+  .mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  
+  .brandText .title {
+    font-size: 13px;
+  }
+  
+  .brandText .subtitle {
+    font-size: 11px;
+  }
+  
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .field.actions {
+    grid-column: span 2;
+  }
+  
+  .cardTop {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pills {
+    justify-content: flex-start;
+  }
+  
+  .cardBottom {
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  /* Modal na telefonie */
+  .modalCard {
+    width: 96vw;
+    height: 85vh;
+    border-radius: 16px;
+  }
+}
+
+/* Małe telefony */
+@media (max-width: 520px) {
+  .layout {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .topbar {
+    padding: 8px 10px;
+  }
+  
+  .mark {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+  
+  .brandText .title {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  
+  .brandText .subtitle {
+    display: none;
+  }
+  
+  .controls {
+    grid-template-columns: 1fr;
+    padding: 10px 12px;
+  }
+  
+  .field.actions {
+    grid-column: span 1;
+  }
+  
+  .toggle {
+    padding-top: 0;
+    justify-content: flex-start;
+  }
+  
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+  }
+  
+  .hero h1 {
+    font-size: 18px;
+  }
+  
+  .lead {
+    font-size: 13px;
+  }
+  
+  .metaLine {
+    justify-content: flex-start;
+    font-size: 11px;
+  }
+  
+  .grid {
+    padding: 0 10px 10px;
+  }
+  
+  .chips {
+    padding: 0 10px 10px;
+    gap: 6px;
+  }
+  
+  .chip {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  
+  .card {
+    border-radius: 14px;
+  }
+  
+  .cardTop {
+    padding: 10px 12px;
+  }
+  
+  .cardTitle {
+    font-size: 14px;
+  }
+  
+  .cardMeta {
+    font-size: 11px;
+  }
+  
+  .cardBody {
+    padding: 0 12px 10px;
+    font-size: 12px;
+  }
+  
+  .cardBottom {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  
+  .pill {
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 5px;
+  }
+  
+  .pill .dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .btn {
+    padding: 9px 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  
+  .footer {
+    padding: 10px 12px 14px;
+    font-size: 11px;
+  }
+  
+  /* Modal na małym telefonie */
+  .modalCard {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    max-height: 100%;
+  }
+  
+  .modalTop, .modalBottom {
+    padding: 10px 12px;
+  }
+  
+  .modalTitle {
+    font-size: 14px;
+  }
+}
+
+/* Bardzo małe telefony */
+@media (max-width: 360px) {
+  .navItem {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+  
+  .hero h1 {
+    font-size: 16px;
+  }
+  
+  .cardTitle {
+    font-size: 13px;
+  }
+}
+
+/* Preferuje zmniejszony ruch - wyłącz animacje */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Tryb wysokiego kontrastu */
+@media (prefers-contrast: high) {
+  :root {
+    --line: rgba(0, 0, 0, 0.3);
+  }
+  
+  [data-theme="dark"] {
+    --line: rgba(255, 255, 255, 0.4);
+  }
+  
+  .card, .panel, .content {
+    border-width: 2px;
+  }
+}
+
+/* Orientacja landscape na telefonie */
+@media (max-height: 500px) and (orientation: landscape) {
+  .topbar {
+    padding: 6px 12px;
+  }
+  
+  .mark {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .layout {
+    padding: 6px;
+  }
+  
+  .side {
+    display: none;
+  }
+  
+  .hero {
+    padding: 8px 12px;
+  }
+  
+  .hero h1 {
+    font-size: 16px;
+  }
+  
+  .controls {
+    padding: 8px 12px;
+  }
+}
+

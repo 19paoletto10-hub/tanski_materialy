@@ -1,0 +1,130 @@
+name: Validate announcements
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "data/announcements.json"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "data/announcements.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate JSON structure
+        run: |
+          python3 << 'EOF'
+          import json
+          import sys
+          from datetime import datetime
+
+          def validate_announcements():
+              try:
+                  with open('data/announcements.json', 'r', encoding='utf-8') as f:
+                      data = json.load(f)
+              except json.JSONDecodeError as e:
+                  print(f"❌ Błąd JSON: {e}")
+                  return False
+              except FileNotFoundError:
+                  print("❌ Plik data/announcements.json nie istnieje")
+                  return False
+
+              # Sprawdź strukturę
+              if not isinstance(data, dict):
+                  print("❌ Plik JSON musi być obiektem")
+                  return False
+
+              if 'items' not in data:
+                  print("❌ Brak pola 'items' w JSON")
+                  return False
+
+              if not isinstance(data['items'], list):
+                  print("❌ Pole 'items' musi być listą")
+                  return False
+
+              # Waliduj każde ogłoszenie
+              errors = []
+              for i, item in enumerate(data['items']):
+                  if not isinstance(item, dict):
+                      errors.append(f"Element {i}: musi być obiektem")
+                      continue
+
+                  # Sprawdź wymagane pola
+                  if 'title' not in item or not item['title']:
+                      errors.append(f"Element {i}: brak tytułu")
+
+                  # Sprawdź format daty
+                  if 'date' in item and item['date']:
+                      try:
+                          datetime.strptime(item['date'], '%Y-%m-%d')
+                      except ValueError:
+                          errors.append(f"Element {i}: nieprawidłowy format daty (oczekiwano YYYY-MM-DD)")
+
+                  if 'expires' in item and item['expires']:
+                      try:
+                          datetime.strptime(item['expires'], '%Y-%m-%d')
+                      except ValueError:
+                          errors.append(f"Element {i}: nieprawidłowy format expires (oczekiwano YYYY-MM-DD)")
+
+              if errors:
+                  print("❌ Znaleziono błędy:")
+                  for err in errors:
+                      print(f"   - {err}")
+                  return False
+
+              print(f"✅ Walidacja OK: {len(data['items'])} ogłoszeń")
+              return True
+
+          if not validate_announcements():
+              sys.exit(1)
+          EOF
+
+      - name: Update metadata timestamp
+        if: github.event_name == 'push'
+        run: |
+          python3 << 'EOF'
+          import json
+          from datetime import datetime, timezone
+
+          with open('data/announcements.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+
+          # Aktualizuj timestamp
+          if 'meta' not in data:
+              data['meta'] = {}
+          data['meta']['generated_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+          with open('data/announcements.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+
+          print(f"✅ Zaktualizowano timestamp: {data['meta']['generated_at']}")
+          EOF
+
+      - name: Commit and push if changed
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/announcements.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update announcements timestamp"
+            git push
+          fi
