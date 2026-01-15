@@ -428,6 +428,38 @@ a{color:inherit}
   line-height: 1.5;
 }
 
+.cardDetails{
+  padding: 0 20px 16px;
+  flex-grow: 1;
+}
+
+.cardDetails ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cardDetails li{
+  position: relative;
+  padding-left: 16px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+.cardDetails li::before{
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.cardDetails li strong{
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .cardActions{
   padding: 16px 20px;
   border-top: 1px solid var(--line);

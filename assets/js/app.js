@@ -99,6 +99,25 @@
   }
 
   /**
+   * Formatuje datę na polski format
+   */
+  function formatDatePL(dateStr) {
+    if (!dateStr) return '';
+    try {
+      var parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      var months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
+                    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+      var day = parseInt(parts[2], 10);
+      var month = months[parseInt(parts[1], 10) - 1] || parts[1];
+      var year = parts[0];
+      return day + ' ' + month + ' ' + year;
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  /**
    * Formatuje aktualną datę
    */
   function formatNow() {
@@ -373,8 +392,11 @@
 
     // Statystyki
     if (stats) {
-      stats.innerHTML = '<span class="metaDot ok"></span><span>Wynik: <b>' + 
-        filtered.length + '</b> / ' + materials.length + ' • ' + escapeHtml(formatNow()) + '</span>';
+      var statsText = 'Znaleziono <b>' + filtered.length + '</b> z ' + materials.length + ' materiałów';
+      if (query || typeFilter || yearFilter) {
+        statsText = 'Wyniki filtrowania: <b>' + filtered.length + '</b> materiałów';
+      }
+      stats.innerHTML = '<span class="metaDot ok"></span><span>' + statsText + '</span>';
     }
 
     // Brak materiałów
@@ -394,22 +416,44 @@
     // Renderuj karty
     var html = filtered.map(function(m) {
       var title = escapeHtml(m.title || 'Plik');
-      var desc = escapeHtml(m.description || '');
       var typeStr = escapeHtml((m.type || '').toUpperCase());
       var dateStr = m.date ? escapeHtml(m.date) : '';
+      var datePL = m.date ? formatDatePL(m.date) : '';
+      var yearStr = m.year ? escapeHtml(String(m.year)) : '';
       var url = (m.url || '').trim();
       var hasUrl = url.length > 0;
       var isPdf = hasUrl && /\.pdf$/i.test(url);
       var isDocx = hasUrl && /\.(docx?|doc)$/i.test(url);
       var isPptx = hasUrl && /\.(pptx?|ppt)$/i.test(url);
       var fullUrl = hasUrl ? buildUrl(url) : '';
+      var tags = Array.isArray(m.tags) ? m.tags : [];
 
       // Wybierz ikonę i kolor w zależności od typu pliku
       var fileIcon = '📄';
       var fileClass = '';
-      if (isPdf) { fileIcon = '📕'; fileClass = 'pdf'; }
-      else if (isDocx) { fileIcon = '📘'; fileClass = 'docx'; }
-      else if (isPptx) { fileIcon = '📙'; fileClass = 'pptx'; }
+      var fileTypeName = 'Dokument';
+      if (isPdf) { fileIcon = '📕'; fileClass = 'pdf'; fileTypeName = 'Dokument PDF'; }
+      else if (isDocx) { fileIcon = '📘'; fileClass = 'docx'; fileTypeName = 'Dokument Word'; }
+      else if (isPptx) { fileIcon = '📙'; fileClass = 'pptx'; fileTypeName = 'Prezentacja PowerPoint'; }
+
+      // Buduj listę kluczowych informacji
+      var infoItems = [];
+      infoItems.push('<li><strong>Typ:</strong> ' + fileTypeName + '</li>');
+      if (datePL) {
+        infoItems.push('<li><strong>Data dodania:</strong> ' + datePL + '</li>');
+      }
+      if (yearStr && !datePL) {
+        infoItems.push('<li><strong>Rok:</strong> ' + yearStr + '</li>');
+      }
+      if (tags.length > 0) {
+        var filteredTags = tags.filter(function(t) { return t !== yearStr; });
+        if (filteredTags.length > 0) {
+          infoItems.push('<li><strong>Kategorie:</strong> ' + escapeHtml(filteredTags.join(', ')) + '</li>');
+        }
+      }
+      if (isPdf) {
+        infoItems.push('<li><strong>Podgląd:</strong> Dostępny online</li>');
+      }
 
       var actionsHtml = '';
       if (!hasUrl) {
@@ -427,13 +471,10 @@
         '<div class="cardIcon ' + fileClass + '">' + fileIcon + '</div>' +
         '<div class="cardInfo">' +
         '<h3 class="cardTitle">' + title + '</h3>' +
-        '<div class="cardMeta">' +
         '<span class="cardType">' + typeStr + '</span>' +
-        (dateStr ? '<span class="cardDate">' + dateStr + '</span>' : '') +
         '</div>' +
         '</div>' +
-        '</div>' +
-        (desc ? '<div class="cardDesc">' + desc + '</div>' : '') +
+        '<div class="cardDetails"><ul>' + infoItems.join('') + '</ul></div>' +
         '<div class="cardActions">' + actionsHtml + '</div>' +
         '</article>';
     }).join('');
