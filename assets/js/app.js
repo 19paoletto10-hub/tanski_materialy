@@ -89,10 +89,36 @@
   }
 
   /**
+   * Formatuje datę ISO na estetyczny format polski
+   * @param {string} isoStr - data w formacie ISO (np. "2026-01-15T04:07:07Z")
+   * @returns {object} - obiekt z sformatowaną datą i godziną
+   */
+  function formatUpdateTime(isoStr) {
+    if (!isoStr) return null;
+    try {
+      var date = new Date(isoStr);
+      if (isNaN(date.getTime())) return null;
+      
+      var day = String(date.getDate()).padStart(2, '0');
+      var month = String(date.getMonth() + 1).padStart(2, '0');
+      var year = date.getFullYear();
+      var hours = String(date.getHours()).padStart(2, '0');
+      var minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return {
+        date: day + '.' + month + '.' + year,
+        time: hours + ':' + minutes
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
    * Aktualizuje status bar
    * @param {string} message - główna wiadomość
    * @param {string} type - typ statusu (ok, bad, warn)
-   * @param {string} updateTime - opcjonalna data aktualizacji
+   * @param {string} updateTime - opcjonalna data aktualizacji w formacie ISO
    */
   function setStatus(message, type, updateTime) {
     var bar = $('#statusBar');
@@ -100,8 +126,17 @@
     bar.className = 'badge' + (type ? ' ' + type : '');
     
     if (updateTime) {
-      bar.innerHTML = '<span>' + escapeHtml(message) + '</span>' +
-        '<span class="status-update">aktualizacja: ' + escapeHtml(updateTime) + '</span>';
+      var formatted = formatUpdateTime(updateTime);
+      if (formatted) {
+        bar.innerHTML = '<span>' + escapeHtml(message) + '</span>' +
+          '<span class="status-update">' +
+          '<span class="status-date">' + formatted.date + '</span>' +
+          '<span class="status-time">' + formatted.time + '</span>' +
+          '</span>';
+      } else {
+        bar.innerHTML = '<span>' + escapeHtml(message) + '</span>' +
+          '<span class="status-update">' + escapeHtml(updateTime) + '</span>';
+      }
     } else {
       bar.textContent = message;
     }
