@@ -603,8 +603,8 @@
 
     // Statystyki
     if (stats) {
-      stats.innerHTML = '<span class="metaDot ok"></span><span>Wynik: <b>' + 
-        filtered.length + '</b> / ' + announcements.length + ' • ' + escapeHtml(formatNow()) + '</span>';
+      stats.innerHTML = '<span class="metaDot ok"></span><span>Znaleziono <b>' + 
+        filtered.length + '</b> z ' + announcements.length + ' ogłoszeń</span>';
     }
 
     // Brak ogłoszeń
@@ -624,39 +624,53 @@
     // Renderuj karty
     var html = filtered.map(function(a) {
       var title = escapeHtml(a.title || 'Ogłoszenie');
-      var body = escapeHtml(a.body || '').replace(/\n/g, '<br>');
+      var body = escapeHtml(a.body || '');
       var dateStr = a.date ? escapeHtml(a.date) : '';
+      var datePL = a.date ? formatDatePL(a.date) : '';
       var expiresStr = a.expires ? escapeHtml(a.expires) : '';
+      var expiresPL = a.expires ? formatDatePL(a.expires) : '';
       var isImportant = !!a.important;
+
+      // Formatuj treść - akapity i wyróżnienia
+      var formattedBody = body
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+      formattedBody = '<p>' + formattedBody + '</p>';
 
       // Ikona w zależności od typu ogłoszenia
       var announcementIcon = isImportant ? '🔔' : '📢';
+      var cardClass = isImportant ? 'card announcement important' : 'card announcement';
 
       var pillsHtml = '';
       if (isImportant) {
-        pillsHtml += '<span class="pill red"><span class="dot"></span>WAŻNE</span>';
+        pillsHtml += '<span class="pill red"><span class="dot"></span>Ważne</span>';
       } else {
-        pillsHtml += '<span class="pill teal"><span class="dot"></span>INFO</span>';
+        pillsHtml += '<span class="pill teal"><span class="dot"></span>Info</span>';
       }
-      if (dateStr) pillsHtml += '<span class="pill"><span class="dot"></span>' + dateStr + '</span>';
-      if (expiresStr) pillsHtml += '<span class="pill warn"><span class="dot"></span>do ' + expiresStr + '</span>';
 
       var tagsHtml = '';
       if (Array.isArray(a.tags) && a.tags.length) {
-        tagsHtml = '<span class="muted">🏷️ ' + escapeHtml(a.tags.join(', ')) + '</span>';
+        tagsHtml = '<div class="tagsList">' + a.tags.map(function(tag) {
+          return '<span class="tagItem">🏷️ ' + escapeHtml(tag) + '</span>';
+        }).join('') + '</div>';
       }
 
-      return '<article class="card">' +
+      return '<article class="' + cardClass + '">' +
         '<div class="cardTop">' +
         '<div class="cardIcon">' + announcementIcon + '</div>' +
-        '<div class="cardContent"><h3 class="cardTitle">' + title + '</h3>' +
+        '<div class="cardContent">' +
+        '<h3 class="cardTitle">' + title + '</h3>' +
         '<div class="cardMeta">' +
-        (dateStr ? '<span class="metaItem"><span class="metaIcon">📅</span> ' + dateStr + '</span>' : '') +
-        (expiresStr ? '<span class="metaItem"><span class="metaIcon">⏰</span> Ważne do: ' + expiresStr + '</span>' : '') +
+        (datePL ? '<span class="metaItem"><span class="metaIcon">📅</span>' + datePL + '</span>' : '') +
+        (expiresPL ? '<span class="metaItem"><span class="metaIcon">⏰</span>Ważne do: ' + expiresPL + '</span>' : '') +
         '</div></div>' +
         '<div class="pills">' + pillsHtml + '</div></div>' +
-        '<div class="cardBody">' + body + '</div>' +
-        '<div class="cardBottom"><div class="cardFooterInfo">' + (isImportant ? '⚡ Priorytet' : '💬 Ogłoszenie') + '</div><div class="cardActions">' + (tagsHtml || '<span></span>') + '</div></div></article>';
+        '<div class="cardBody">' + formattedBody + '</div>' +
+        '<div class="cardBottom">' +
+        '<div class="cardFooterInfo">' + (isImportant ? '⚡ Priorytetowe ogłoszenie' : '💬 Ogłoszenie informacyjne') + '</div>' +
+        '<div class="cardActions">' + (tagsHtml || '') + '</div></div></article>';
     }).join('');
 
     grid.innerHTML = html;
