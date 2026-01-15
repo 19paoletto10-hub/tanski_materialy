@@ -115,6 +115,10 @@
      Modal (PDF preview)
      =========================== */
   const openPdf = (title, url) => {
+    if(!url || !url.trim()) {
+      console.warn("openPdf: brak URL");
+      return;
+    }
     const modal = $("#pdfModal");
     if(!modal) return;
     $("#pdfTitle").textContent = title || "Podgląd";
@@ -135,11 +139,30 @@
   };
 
   const bindModal = () => {
-    $("#pdfModal")?.addEventListener("click", (e) => {
+    const modal = $("#pdfModal");
+    if(!modal) return;
+    
+    // Zamykanie przez kliknięcie na overlay lub przyciski z data-close
+    modal.addEventListener("click", (e) => {
       const t = e.target;
-      if(t && (t.hasAttribute("data-close") || t.closest("[data-close]"))) closeModal();
+      // Sprawdź czy to element z data-close lub jego rodzic
+      const closeEl = t.hasAttribute?.("data-close") ? t : t.closest?.("[data-close]");
+      if(closeEl) {
+        // Dla linków (Pobierz) - pozwól na domyślne zachowanie, ale zamknij modal
+        if(closeEl.tagName === "A") {
+          // Nie blokuj download - zamknij z opóźnieniem
+          setTimeout(closeModal, 100);
+        } else {
+          e.preventDefault();
+          closeModal();
+        }
+      }
     });
-    window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+    
+    // Zamykanie przez Escape
+    window.addEventListener("keydown", (e) => { 
+      if(e.key === "Escape" && !modal.hidden) closeModal(); 
+    });
   };
 
   /* ===========================
@@ -213,9 +236,10 @@
       const typeP = escapeHtml((m.type || "").toUpperCase());
       const dateP = m.date ? escapeHtml(m.date) : "";
       const yearP = m.year ? escapeHtml(String(m.year)) : "";
-      const url = m.url || "";
-      const isPdf = /\.pdf$/i.test(url || "");
-      const href = escapeHtml(encodeURI(u(url)));
+      const url = (m.url || "").trim();
+      const hasUrl = url.length > 0;
+      const isPdf = hasUrl && /\.pdf$/i.test(url);
+      const href = hasUrl ? escapeHtml(encodeURI(u(url))) : "#";
 
       const pills = [
         typeP ? `<span class="pill teal"><span class="dot"></span>${typeP}</span>` : "",
@@ -223,10 +247,15 @@
         (!dateP && yearP) ? `<span class="pill"><span class="dot"></span>${yearP}</span>` : ""
       ].filter(Boolean).join("");
 
-      const actions = isPdf
-        ? `<button class="btn" type="button" data-preview="${escapeHtml(url)}" data-title="${title}">Podgląd</button>
-           <a class="btn ghost" href="${href}" download>Pobierz</a>`
-        : `<a class="btn" href="${href}" download>Pobierz</a>`;
+      let actions = '';
+      if(!hasUrl) {
+        actions = `<span class="muted">Plik niedostępny</span>`;
+      } else if(isPdf) {
+        actions = `<button class="btn" type="button" data-preview="${escapeHtml(url)}" data-title="${title}">Podgląd</button>
+           <a class="btn ghost" href="${href}" download>Pobierz</a>`;
+      } else {
+        actions = `<a class="btn" href="${href}" download>Pobierz</a>`;
+      }
 
       return `
         <article class="card">
