@@ -1,505 +1,707 @@
-(() => {
-  "use strict";
+/**
+ * Portal dydaktyczny PWr - Wydział Medyczny
+ * Profesjonalna aplikacja front-end
+ * @version 2.0.0
+ */
+(function() {
+  'use strict';
 
-  // Oblicz bazowy URL względem lokalizacji strony
-  const getBaseUrl = () => {
-    const loc = window.location;
-    const path = loc.pathname;
-    // Usuń nazwę pliku (np. index.html) z ścieżki
-    const dir = path.substring(0, path.lastIndexOf('/') + 1);
-    return loc.origin + dir;
-  };
+  // ============================================
+  // KONFIGURACJA I UTILITY
+  // ============================================
+  
+  /**
+   * Pobiera bazowy URL strony (katalog bez nazwy pliku)
+   */
+  function getBasePath() {
+    var pathname = window.location.pathname;
+    var lastSlash = pathname.lastIndexOf('/');
+    var dir = pathname.substring(0, lastSlash + 1);
+    return window.location.origin + dir;
+  }
 
-  const BASE_URL = getBaseUrl();
-  const u = (path) => {
-    if(!path || typeof path !== 'string') return '';
-    // Usuń "./" z początku ścieżki jeśli istnieje
-    const cleanPath = path.replace(/^\.\//,  '').trim();
-    if(!cleanPath) return '';
-    // Zwróć pełny URL
-    return BASE_URL + cleanPath;
-  };
+  var BASE_PATH = getBasePath();
 
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-
-  const debounce = (fn, ms=170) => {
-    let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-  };
-
-  const escapeHtml = (str) => (str ?? "").toString().replace(/[&<>"']/g, (m) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-  }[m]));
-
-  const toast = (text, kind="ok") => {
-    const bar = $("#statusBar");
-    if(!bar) return;
-    bar.classList.remove("ok","warn","bad");
-    if(kind) bar.classList.add(kind);
-    bar.textContent = text;
-  };
-
-  const nowISO = () => new Date().toISOString().replace("T"," ").slice(0,19);
-
-  const setTheme = (theme) => {
-    if(theme === "dark") document.documentElement.setAttribute("data-theme","dark");
-    else document.documentElement.removeAttribute("data-theme");
-    localStorage.setItem("tanski_theme", theme);
-  };
-
-  const initTheme = () => {
-    const saved = localStorage.getItem("tanski_theme");
-    if(saved) setTheme(saved);
-    else {
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(prefersDark ? "dark" : "light");
+  /**
+   * Buduje pełny URL z relatywnej ścieżki
+   */
+  function buildUrl(relativePath) {
+    if (!relativePath || typeof relativePath !== 'string') {
+      return '';
     }
-    $("#themeBtn")?.addEventListener("click", () => {
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      setTheme(isDark ? "light" : "dark");
-    });
-  };
-
-  const fetchJson = async (url, timeoutMs=9000) => {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), timeoutMs);
-
-    let res;
-    try{
-      console.log("[fetchJson] Pobieranie:", url);
-      res = await fetch(url, {
-        method: "GET",
-        headers: { "Accept": "application/json" },
-        cache: "no-store",
-        signal: controller.signal
-      });
-    } catch(fetchErr) {
-      clearTimeout(t);
-      console.error("[fetchJson] Błąd fetch:", fetchErr);
-      const err = new Error(`Błąd połączenia: ${fetchErr.message}`);
-      err.url = url;
-      throw err;
-    } finally {
-      clearTimeout(t);
+    // Usuń ./ z początku jeśli istnieje
+    var cleanPath = relativePath.replace(/^\.\//, '').trim();
+    if (!cleanPath) {
+      return '';
     }
+    return BASE_PATH + cleanPath;
+  }
 
-    if(!res.ok){
-      const err = new Error(`HTTP ${res.status} ${res.statusText} for ${url}`);
-      err.status = res.status;
-      err.url = url;
-      throw err;
+  /**
+   * Skrócony selektor DOM
+   */
+  function $(selector, context) {
+    return (context || document).querySelector(selector);
+  }
+
+  function $$(selector, context) {
+    return Array.prototype.slice.call((context || document).querySelectorAll(selector));
+  }
+
+  /**
+   * Debounce - opóźnia wykonanie funkcji
+   */
+  function debounce(fn, delay) {
+    var timer = null;
+    return function() {
+      var args = arguments;
+      var ctx = this;
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        fn.apply(ctx, args);
+      }, delay || 200);
+    };
+  }
+
+  /**
+   * Escape HTML - zabezpiecza przed XSS
+   */
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    var text = String(str);
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+  /**
+   * Aktualizuje status bar
+   */
+  function setStatus(message, type) {
+    var bar = $('#statusBar');
+    if (!bar) return;
+    bar.className = 'badge' + (type ? ' ' + type : '');
+    bar.textContent = message;
+  }
+
+  /**
+   * Formatuje aktualną datę
+   */
+  function formatNow() {
+    return new Date().toISOString().replace('T', ' ').substring(0, 19);
+  }
+
+  // ============================================
+  // THEME (MOTYW JASNY/CIEMNY)
+  // ============================================
+
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
     }
-    
     try {
-      return await res.json();
-    } catch(jsonErr) {
-      console.error("[fetchJson] Błąd parsowania JSON:", jsonErr);
-      const err = new Error(`Nieprawidłowy format JSON: ${jsonErr.message}`);
-      err.url = url;
-      throw err;
-    }
-  };
+      localStorage.setItem('tanski_theme', theme);
+    } catch (e) {}
+  }
 
-  const normalizePayload = (raw) => {
-    if(Array.isArray(raw)) return { meta: {}, items: raw };
-    if(raw && typeof raw === "object" && Array.isArray(raw.items)) return { meta: raw.meta || {}, items: raw.items };
+  function initTheme() {
+    var saved = null;
+    try {
+      saved = localStorage.getItem('tanski_theme');
+    } catch (e) {}
+
+    if (saved) {
+      setTheme(saved);
+    } else {
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+
+    var btn = $('#themeBtn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        setTheme(isDark ? 'light' : 'dark');
+      });
+    }
+  }
+
+  // ============================================
+  // FETCH JSON
+  // ============================================
+
+  function fetchJson(url, timeout) {
+    timeout = timeout || 10000;
+
+    return new Promise(function(resolve, reject) {
+      var controller = null;
+      var timeoutId = null;
+
+      // Obsługa AbortController jeśli dostępny
+      if (typeof AbortController !== 'undefined') {
+        controller = new AbortController();
+        timeoutId = setTimeout(function() {
+          controller.abort();
+        }, timeout);
+      }
+
+      var options = {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      };
+
+      if (controller) {
+        options.signal = controller.signal;
+      }
+
+      fetch(url, options)
+        .then(function(response) {
+          if (timeoutId) clearTimeout(timeoutId);
+          if (!response.ok) {
+            var err = new Error('HTTP ' + response.status);
+            err.status = response.status;
+            err.url = url;
+            throw err;
+          }
+          return response.json();
+        })
+        .then(resolve)
+        .catch(function(err) {
+          if (timeoutId) clearTimeout(timeoutId);
+          err.url = err.url || url;
+          reject(err);
+        });
+    });
+  }
+
+  /**
+   * Normalizuje dane JSON (obsługuje różne formaty)
+   */
+  function normalizeData(raw) {
+    if (Array.isArray(raw)) {
+      return { meta: {}, items: raw };
+    }
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      return { meta: raw.meta || {}, items: raw.items };
+    }
     return { meta: {}, items: [] };
-  };
+  }
 
-  const isExpired = (expires) => {
-    if(!expires) return false;
-    const d = new Date(expires + "T23:59:59");
-    if(Number.isNaN(d.getTime())) return false;
-    return d.getTime() < Date.now();
-  };
-
-  /* ===========================
-     Modal (PDF preview)
-     =========================== */
-  const openPdf = (title, url) => {
-    if(!url || !url.trim()) {
-      console.warn("openPdf: brak URL");
-      return;
+  /**
+   * Sprawdza czy ogłoszenie wygasło
+   */
+  function isExpired(expiresDate) {
+    if (!expiresDate) return false;
+    try {
+      var d = new Date(expiresDate + 'T23:59:59');
+      if (isNaN(d.getTime())) return false;
+      return d.getTime() < Date.now();
+    } catch (e) {
+      return false;
     }
-    const modal = $("#pdfModal");
-    if(!modal) return;
-    $("#pdfTitle").textContent = title || "Podgląd";
-    const full = u(url);
-    $("#pdfFrame").src = full;
-    $("#pdfDownload").href = full;
+  }
+
+  // ============================================
+  // MODAL PDF
+  // ============================================
+
+  var modalState = {
+    isOpen: false
+  };
+
+  function openModal(title, pdfUrl) {
+    if (!pdfUrl) return;
+    
+    var modal = $('#pdfModal');
+    var frame = $('#pdfFrame');
+    var titleEl = $('#pdfTitle');
+    var downloadEl = $('#pdfDownload');
+    
+    if (!modal || !frame) return;
+
+    var fullUrl = buildUrl(pdfUrl);
+    
+    if (titleEl) titleEl.textContent = title || 'Podgląd PDF';
+    if (frame) frame.src = fullUrl;
+    if (downloadEl) downloadEl.href = fullUrl;
+    
     modal.hidden = false;
-    document.body.style.overflow = "hidden";
-  };
+    modalState.isOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
 
-  const closeModal = () => {
-    const modal = $("#pdfModal");
-    if(!modal) return;
+  function closeModal() {
+    var modal = $('#pdfModal');
+    var frame = $('#pdfFrame');
+    
+    if (!modal) return;
+    
     modal.hidden = true;
-    document.body.style.overflow = "";
-    const frame = $("#pdfFrame");
-    if(frame) frame.src = "about:blank";
-  };
-
-  const bindModal = () => {
-    const modal = $("#pdfModal");
-    if(!modal) return;
+    modalState.isOpen = false;
+    document.body.style.overflow = '';
     
-    // Zamykanie przez kliknięcie na overlay lub przyciski z data-close
-    modal.addEventListener("click", (e) => {
-      const t = e.target;
-      // Sprawdź czy to element z data-close lub jego rodzic
-      const closeEl = t.hasAttribute?.("data-close") ? t : t.closest?.("[data-close]");
-      if(closeEl) {
-        // Dla linków (Pobierz) - pozwól na domyślne zachowanie, ale zamknij modal
-        if(closeEl.tagName === "A") {
-          // Nie blokuj download - zamknij z opóźnieniem
-          setTimeout(closeModal, 100);
-        } else {
-          e.preventDefault();
-          closeModal();
-        }
+    if (frame) {
+      frame.src = 'about:blank';
+    }
+  }
+
+  function initModal() {
+    var overlay = $('#modalOverlay');
+    var closeBtn = $('#modalCloseBtn');
+    var closeBtn2 = $('#modalCloseBtn2');
+
+    if (overlay) {
+      overlay.addEventListener('click', closeModal);
+    }
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeModal);
+    }
+    if (closeBtn2) {
+      closeBtn2.addEventListener('click', closeModal);
+    }
+
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modalState.isOpen) {
+        closeModal();
       }
     });
-    
-    // Zamykanie przez Escape
-    window.addEventListener("keydown", (e) => { 
-      if(e.key === "Escape" && !modal.hidden) closeModal(); 
-    });
+  }
+
+  // ============================================
+  // MATERIAŁY
+  // ============================================
+
+  var materialsState = {
+    data: [],
+    initialized: false
   };
 
-  /* ===========================
-     Materials
-     =========================== */
-  const fillMaterialFilters = (materials) => {
-    const typeSel = $("#mType");
-    const yearSel = $("#mYear");
-    if(!typeSel || !yearSel) return;
+  function fillMaterialFilters(materials) {
+    var typeSel = $('#mType');
+    var yearSel = $('#mYear');
+    var chipsEl = $('#mChips');
 
-    const types = [...new Set(materials.map(m => (m.type||"").toUpperCase()).filter(Boolean))].sort();
-    const years = [...new Set(materials.map(m => (m.year||"").toString()).filter(Boolean))].sort().reverse();
+    if (!typeSel || !yearSel) return;
 
-    typeSel.innerHTML = `<option value="">Wszystkie</option>` + types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
-    yearSel.innerHTML = `<option value="">Wszystkie</option>` + years.map(y => `<option value="${escapeHtml(y)}">${escapeHtml(y)}</option>`).join("");
+    // Zbierz unikalne typy i lata
+    var typesSet = {};
+    var yearsSet = {};
 
-    const chips = $("#mChips");
-    if(chips){
-      const make = (label, val) => `<div class="chip ${val==="" ? "active":""}" data-type="${escapeHtml(val)}">${escapeHtml(label)}</div>`;
-      chips.innerHTML = [make("Wszystkie",""), ...types.slice(0,12).map(t => make(t,t))].join("");
-      chips.addEventListener("click", (e) => {
-        const el = e.target?.closest?.(".chip");
-        if(!el) return;
-        const val = el.getAttribute("data-type") || "";
-        $$(".chip", chips).forEach(c => c.classList.remove("active"));
-        el.classList.add("active");
-        typeSel.value = val;
-        renderMaterials(materials);
-      });
-    }
-  };
-
-  const renderMaterials = (materials) => {
-    const grid = $("#mGrid");
-    if(!grid) return;
-
-    const q = ($("#mQuery")?.value || "").trim().toLowerCase();
-    const type = ($("#mType")?.value || "").trim().toUpperCase();
-    const year = ($("#mYear")?.value || "").trim();
-
-    const items = materials.filter(m => {
-      if(type && (m.type||"").toUpperCase() !== type) return false;
-      if(year && (m.year||"").toString() !== year) return false;
-      if(!q) return true;
-      const blob = [
-        m.title, m.description, m.type, m.year, m.date,
-        ...(Array.isArray(m.tags) ? m.tags : [])
-      ].join(" ").toLowerCase();
-      return blob.includes(q);
+    materials.forEach(function(m) {
+      var t = (m.type || '').toUpperCase();
+      var y = String(m.year || '');
+      if (t) typesSet[t] = true;
+      if (y) yearsSet[y] = true;
     });
 
-    // Stats
-    const stats = $("#mStats");
-    if(stats){
-      stats.innerHTML = `<span class="metaDot ok"></span><span>Wynik: <b>${items.length}</b> / ${materials.length} • ${escapeHtml(nowISO())}</span>`;
-    }
+    var types = Object.keys(typesSet).sort();
+    var years = Object.keys(yearsSet).sort().reverse();
 
-    if(materials.length === 0){
-      grid.innerHTML = `<div class="empty"><h3>Brak materiałów</h3><p class="muted">Dodaj plik do <span class="mono">wyklady/</span> i wykonaj commit/push. GitHub Actions wygeneruje listę.</p></div>`;
-      return;
-    }
+    // Wypełnij selecty
+    typeSel.innerHTML = '<option value="">Wszystkie</option>' +
+      types.map(function(t) {
+        return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>';
+      }).join('');
 
-    if(items.length === 0){
-      grid.innerHTML = `<div class="empty"><h3>Brak wyników</h3><p class="muted">Zmień filtry lub frazę wyszukiwania.</p></div>`;
-      return;
-    }
+    yearSel.innerHTML = '<option value="">Wszystkie</option>' +
+      years.map(function(y) {
+        return '<option value="' + escapeHtml(y) + '">' + escapeHtml(y) + '</option>';
+      }).join('');
 
-    grid.innerHTML = items.map(m => {
-      const title = escapeHtml(m.title || "Plik");
-      const desc = escapeHtml(m.description || "");
-      const typeP = escapeHtml((m.type || "").toUpperCase());
-      const dateP = m.date ? escapeHtml(m.date) : "";
-      const yearP = m.year ? escapeHtml(String(m.year)) : "";
-      const url = (m.url || "").trim();
-      const hasUrl = url.length > 0;
-      const isPdf = hasUrl && /\.pdf$/i.test(url);
-      // Unikaj podwójnego kodowania - encodeURI tylko dla surowej ścieżki
-      const fullUrl = hasUrl ? u(url) : '';
-      const href = hasUrl && fullUrl ? escapeHtml(fullUrl) : "#";
-
-      const pills = [
-        typeP ? `<span class="pill teal"><span class="dot"></span>${typeP}</span>` : "",
-        dateP ? `<span class="pill red"><span class="dot"></span>${dateP}</span>` : "",
-        (!dateP && yearP) ? `<span class="pill"><span class="dot"></span>${yearP}</span>` : ""
-      ].filter(Boolean).join("");
-
-      let actions = '';
-      if(!hasUrl) {
-        actions = `<span class="muted">Plik niedostępny</span>`;
-      } else if(isPdf) {
-        actions = `<button class="btn" type="button" data-preview="${escapeHtml(url)}" data-title="${title}">Podgląd</button>
-           <a class="btn ghost" href="${href}" download>Pobierz</a>`;
-      } else {
-        actions = `<a class="btn" href="${href}" download>Pobierz</a>`;
-      }
-
-      return `
-        <article class="card">
-          <div class="cardTop">
-            <div>
-              <h3 class="cardTitle">${title}</h3>
-              <div class="cardMeta">${desc}</div>
-            </div>
-            <div class="pills">${pills}</div>
-          </div>
-          <div class="cardBody">
-            ${(Array.isArray(m.tags) && m.tags.length) ? `<div class="muted"><span class="mono">tagi:</span> ${escapeHtml(m.tags.join(", "))}</div>` : ""}
-          </div>
-          <div class="cardBottom">${actions}</div>
-        </article>
-      `;
-    }).join("");
-
-    // Bind preview buttons
-    $$("#mGrid [data-preview]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const url = btn.getAttribute("data-preview");
-        const title = btn.getAttribute("data-title");
-        if(url) openPdf(title || "Podgląd", url);
+    // Chipy
+    if (chipsEl) {
+      var chipsHtml = '<div class="chip active" data-type="">Wszystkie</div>';
+      types.slice(0, 10).forEach(function(t) {
+        chipsHtml += '<div class="chip" data-type="' + escapeHtml(t) + '">' + escapeHtml(t) + '</div>';
       });
-    });
-  };
+      chipsEl.innerHTML = chipsHtml;
 
-  const initMaterials = async () => {
-    const grid = $("#mGrid");
-    if(!grid) return;
-
-    toast("Ładowanie materiałów…");
-    grid.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
-
-    const target = u("./data/materials.json") + "?v=" + Date.now();
-
-    try{
-      const raw = await fetchJson(target, 12000);
-      const { meta, items } = normalizePayload(raw);
-      const materials = Array.isArray(items) ? items : [];
-
-      fillMaterialFilters(materials);
-      renderMaterials(materials);
-
-      // Events
-      const rer = debounce(() => renderMaterials(materials), 160);
-      $("#mQuery")?.addEventListener("input", rer);
-      $("#mType")?.addEventListener("change", () => renderMaterials(materials));
-      $("#mYear")?.addEventListener("change", () => renderMaterials(materials));
-      $("#mReset")?.addEventListener("click", () => {
-        $("#mQuery").value = "";
-        $("#mType").value = "";
-        $("#mYear").value = "";
-        $$("#mChips .chip").forEach((c, i) => c.classList.toggle("active", i===0));
-        renderMaterials(materials);
-      });
-
-      const gen = meta?.generated_at ? ` • indeks: ${meta.generated_at}` : "";
-      toast(`Materiały: ${materials.length}${gen}`, "ok");
-    }catch(e){
-      console.error(e);
-      toast("Błąd ładowania materiałów", "bad");
-      grid.innerHTML = `
-        <div class="empty">
-          <h3>Nie udało się wczytać materiałów</h3>
-          <p class="muted">
-            <span class="mono">URL:</span> <span class="mono">${escapeHtml(e.url || target)}</span><br/>
-            Jeśli właśnie dodałeś PDF do <span class="mono">wyklady/</span>, sprawdź repo → <b>Actions</b> (czy workflow wygenerował <span class="mono">data/materials.json</span>).<br/>
-            Jeśli testujesz lokalnie, uruchom prosty serwer (np. VS Code Live Server) — <span class="mono">file://</span> może blokować fetch.
-          </p>
-        </div>`;
-    }
-  };
-
-  /* ===========================
-     Announcements
-     =========================== */
-  const fillAnnouncementFilters = (ann) => {
-    const sel = $("#aTag");
-    if(!sel) return;
-    const tags = [...new Set(ann.flatMap(a => Array.isArray(a.tags) ? a.tags : []).map(t => String(t)).filter(Boolean))].sort();
-    sel.innerHTML = `<option value="">Wszystkie</option>` + tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
-  };
-
-  const renderAnnouncements = (ann) => {
-    const grid = $("#aGrid");
-    if(!grid) return;
-
-    const q = ($("#aQuery")?.value || "").trim().toLowerCase();
-    const tag = ($("#aTag")?.value || "").trim();
-
-    const items = ann.filter(a => {
-      if(tag){
-        const tags = Array.isArray(a.tags) ? a.tags.map(String) : [];
-        if(!tags.includes(tag)) return false;
-      }
-      if(!q) return true;
-      const blob = [
-        a.title, a.body, a.date, a.expires,
-        ...(Array.isArray(a.tags) ? a.tags : [])
-      ].join(" ").toLowerCase();
-      return blob.includes(q);
-    });
-
-    const stats = $("#aStats");
-    if(stats){
-      stats.innerHTML = `<span class="metaDot ok"></span><span>Wynik: <b>${items.length}</b> / ${ann.length} • ${escapeHtml(nowISO())}</span>`;
-    }
-
-    if(ann.length === 0){
-      grid.innerHTML = `<div class="empty"><h3>Brak ogłoszeń</h3><p class="muted">Prowadzący publikuje ogłoszenia w <span class="mono">data/announcements.json</span>.</p></div>`;
-      return;
-    }
-
-    if(items.length === 0){
-      grid.innerHTML = `<div class="empty"><h3>Brak wyników</h3><p class="muted">Zmień filtr tagów lub wyszukiwanie.</p></div>`;
-      return;
-    }
-
-    grid.innerHTML = items.map(a => {
-      const title = escapeHtml(a.title || "Ogłoszenie");
-      const body = escapeHtml(a.body || "");
-      const date = a.date ? escapeHtml(a.date) : "";
-      const expires = a.expires ? escapeHtml(a.expires) : "";
-      const important = !!a.important;
-
-      const pills = [
-        important ? `<span class="pill red"><span class="dot"></span>WAŻNE</span>` : `<span class="pill teal"><span class="dot"></span>INFO</span>`,
-        date ? `<span class="pill"><span class="dot"></span>${date}</span>` : "",
-        expires ? `<span class="pill warn" title="Do: ${expires}"><span class="dot"></span>do ${expires}</span>` : ""
-      ].filter(Boolean).join("");
-
-      return `
-        <article class="card">
-          <div class="cardTop">
-            <div>
-              <h3 class="cardTitle">${title}</h3>
-              <div class="cardMeta">${date ? "Data: " + date : ""}</div>
-            </div>
-            <div class="pills">${pills}</div>
-          </div>
-          <div class="cardBody">${body.replace(/\n/g,"<br/>")}</div>
-          <div class="cardBottom">
-            ${(Array.isArray(a.tags) && a.tags.length) ? `<span class="muted"><span class="mono">tagi:</span> ${escapeHtml(a.tags.join(", "))}</span>` : `<span></span>`}
-          </div>
-        </article>
-      `;
-    }).join("");
-  };
-
-  // Przechowujemy referencję do aktualnych ogłoszeń, aby uniknąć wielokrotnego dodawania listenerów
-  let announcementsData = null;
-  let announcementListenersBound = false;
-
-  const initAnnouncements = async () => {
-    const grid = $("#aGrid");
-    if(!grid) return;
-
-    toast("Ładowanie ogłoszeń…");
-    grid.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
-
-    const target = u("./data/announcements.json") + "?v=" + Date.now();
-
-    try{
-      const raw = await fetchJson(target, 12000);
-      const { meta, items } = normalizePayload(raw);
-      let ann = Array.isArray(items) ? items : [];
-
-      const showExpired = $("#aShowExpired")?.checked || false;
-      if(!showExpired) ann = ann.filter(a => !isExpired(a.expires));
-
-      ann.sort((a,b) => {
-        const ai = !!a.important, bi = !!b.important;
-        if(ai !== bi) return (bi - ai);
-        const ad = a.date || ""; const bd = b.date || "";
-        return bd.localeCompare(ad);
-      });
-
-      announcementsData = ann;
-      fillAnnouncementFilters(ann);
-      renderAnnouncements(ann);
-
-      // Binduj listenery tylko raz, aby uniknąć powielania
-      if(!announcementListenersBound) {
-        announcementListenersBound = true;
+      chipsEl.addEventListener('click', function(e) {
+        var chip = e.target.closest('.chip');
+        if (!chip) return;
         
-        const rer = debounce(() => {
-          if(announcementsData) renderAnnouncements(announcementsData);
-        }, 160);
-        $("#aQuery")?.addEventListener("input", rer);
-        $("#aTag")?.addEventListener("change", () => {
-          if(announcementsData) renderAnnouncements(announcementsData);
-        });
-        $("#aShowExpired")?.addEventListener("change", () => initAnnouncements());
-        $("#aReset")?.addEventListener("click", () => {
-          $("#aQuery").value = "";
-          $("#aTag").value = "";
-          if(announcementsData) renderAnnouncements(announcementsData);
-        });
+        $$('.chip', chipsEl).forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        
+        var val = chip.getAttribute('data-type') || '';
+        typeSel.value = val;
+        renderMaterials();
+      });
+    }
+  }
+
+  function renderMaterials() {
+    var grid = $('#mGrid');
+    var stats = $('#mStats');
+    if (!grid) return;
+
+    var materials = materialsState.data;
+    var query = ($('#mQuery') ? $('#mQuery').value : '').trim().toLowerCase();
+    var typeFilter = ($('#mType') ? $('#mType').value : '').toUpperCase();
+    var yearFilter = ($('#mYear') ? $('#mYear').value : '');
+
+    // Filtruj
+    var filtered = materials.filter(function(m) {
+      if (typeFilter && (m.type || '').toUpperCase() !== typeFilter) return false;
+      if (yearFilter && String(m.year || '') !== yearFilter) return false;
+      if (!query) return true;
+
+      var searchable = [
+        m.title, m.description, m.type, m.year, m.date
+      ].concat(Array.isArray(m.tags) ? m.tags : []).join(' ').toLowerCase();
+
+      return searchable.indexOf(query) !== -1;
+    });
+
+    // Statystyki
+    if (stats) {
+      stats.innerHTML = '<span class="metaDot ok"></span><span>Wynik: <b>' + 
+        filtered.length + '</b> / ' + materials.length + ' • ' + escapeHtml(formatNow()) + '</span>';
+    }
+
+    // Brak materiałów
+    if (materials.length === 0) {
+      grid.innerHTML = '<div class="empty"><h3>Brak materiałów</h3>' +
+        '<p class="muted">Dodaj plik do <code>wyklady/</code> i wykonaj commit/push. GitHub Actions wygeneruje listę.</p></div>';
+      return;
+    }
+
+    // Brak wyników
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty"><h3>Brak wyników</h3>' +
+        '<p class="muted">Zmień filtry lub frazę wyszukiwania.</p></div>';
+      return;
+    }
+
+    // Renderuj karty
+    var html = filtered.map(function(m) {
+      var title = escapeHtml(m.title || 'Plik');
+      var desc = escapeHtml(m.description || '');
+      var typeStr = escapeHtml((m.type || '').toUpperCase());
+      var dateStr = m.date ? escapeHtml(m.date) : '';
+      var yearStr = m.year ? escapeHtml(String(m.year)) : '';
+      var url = (m.url || '').trim();
+      var hasUrl = url.length > 0;
+      var isPdf = hasUrl && /\.pdf$/i.test(url);
+      var fullUrl = hasUrl ? buildUrl(url) : '';
+
+      var pillsHtml = '';
+      if (typeStr) pillsHtml += '<span class="pill teal"><span class="dot"></span>' + typeStr + '</span>';
+      if (dateStr) pillsHtml += '<span class="pill red"><span class="dot"></span>' + dateStr + '</span>';
+      else if (yearStr) pillsHtml += '<span class="pill"><span class="dot"></span>' + yearStr + '</span>';
+
+      var actionsHtml = '';
+      if (!hasUrl) {
+        actionsHtml = '<span class="muted">Plik niedostępny</span>';
+      } else if (isPdf) {
+        actionsHtml = '<button class="btn previewBtn" type="button" data-url="' + escapeHtml(url) + 
+          '" data-title="' + title + '">Podgląd</button>' +
+          '<a class="btn ghost" href="' + escapeHtml(fullUrl) + '" download>Pobierz</a>';
+      } else {
+        actionsHtml = '<a class="btn" href="' + escapeHtml(fullUrl) + '" download>Pobierz</a>';
       }
 
-      const gen = meta?.generated_at ? ` • aktualizacja: ${meta.generated_at}` : "";
-      toast(`Ogłoszenia: ${ann.length}${gen}`, "ok");
-    }catch(e){
-      console.error(e);
-      toast("Błąd ładowania ogłoszeń", "bad");
-      grid.innerHTML = `
-        <div class="empty">
-          <h3>Nie udało się wczytać ogłoszeń</h3>
-          <p class="muted">
-            <span class="mono">URL:</span> <span class="mono">${escapeHtml(e.url || target)}</span><br/>
-            Sprawdź, czy plik <span class="mono">data/announcements.json</span> jest w repo i ma poprawny JSON.
-          </p>
-        </div>`;
-    }
+      var tagsHtml = '';
+      if (Array.isArray(m.tags) && m.tags.length) {
+        tagsHtml = '<div class="muted"><code>tagi:</code> ' + escapeHtml(m.tags.join(', ')) + '</div>';
+      }
+
+      return '<article class="card">' +
+        '<div class="cardTop"><div><h3 class="cardTitle">' + title + '</h3>' +
+        '<div class="cardMeta">' + desc + '</div></div>' +
+        '<div class="pills">' + pillsHtml + '</div></div>' +
+        '<div class="cardBody">' + tagsHtml + '</div>' +
+        '<div class="cardBottom">' + actionsHtml + '</div></article>';
+    }).join('');
+
+    grid.innerHTML = html;
+
+    // Bind przyciski podglądu
+    $$('.previewBtn', grid).forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var url = btn.getAttribute('data-url');
+        var title = btn.getAttribute('data-title');
+        if (url) openModal(title, url);
+      });
+    });
+  }
+
+  function initMaterials() {
+    var grid = $('#mGrid');
+    if (!grid) return;
+
+    setStatus('Ładowanie materiałów…');
+    grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+
+    var url = buildUrl('data/materials.json') + '?v=' + Date.now();
+
+    fetchJson(url, 15000)
+      .then(function(raw) {
+        var data = normalizeData(raw);
+        materialsState.data = data.items || [];
+        
+        fillMaterialFilters(materialsState.data);
+        renderMaterials();
+
+        // Event listeners (tylko raz)
+        if (!materialsState.initialized) {
+          materialsState.initialized = true;
+          
+          var rerenderDebounced = debounce(renderMaterials, 200);
+          
+          var queryEl = $('#mQuery');
+          var typeEl = $('#mType');
+          var yearEl = $('#mYear');
+          var resetEl = $('#mReset');
+
+          if (queryEl) queryEl.addEventListener('input', rerenderDebounced);
+          if (typeEl) typeEl.addEventListener('change', renderMaterials);
+          if (yearEl) yearEl.addEventListener('change', renderMaterials);
+          if (resetEl) {
+            resetEl.addEventListener('click', function() {
+              if (queryEl) queryEl.value = '';
+              if (typeEl) typeEl.value = '';
+              if (yearEl) yearEl.value = '';
+              $$('#mChips .chip').forEach(function(c, i) {
+                c.classList.toggle('active', i === 0);
+              });
+              renderMaterials();
+            });
+          }
+        }
+
+        var genInfo = data.meta && data.meta.generated_at ? ' • indeks: ' + data.meta.generated_at : '';
+        setStatus('Materiały: ' + materialsState.data.length + genInfo, 'ok');
+      })
+      .catch(function(err) {
+        console.error('Błąd ładowania materiałów:', err);
+        setStatus('Błąd ładowania materiałów', 'bad');
+        grid.innerHTML = '<div class="empty"><h3>Nie udało się wczytać materiałów</h3>' +
+          '<p class="muted">Sprawdź konsolę przeglądarki (F12) lub poczekaj chwilę i odśwież stronę.</p></div>';
+      });
+  }
+
+  // ============================================
+  // OGŁOSZENIA
+  // ============================================
+
+  var announcementsState = {
+    data: [],
+    allData: [],
+    initialized: false
   };
 
-  /* ===========================
-     Boot
-     =========================== */
-  const init = async () => {
+  function fillAnnouncementFilters(announcements) {
+    var tagSel = $('#aTag');
+    if (!tagSel) return;
+
+    var tagsSet = {};
+    announcements.forEach(function(a) {
+      if (Array.isArray(a.tags)) {
+        a.tags.forEach(function(t) {
+          if (t) tagsSet[String(t)] = true;
+        });
+      }
+    });
+
+    var tags = Object.keys(tagsSet).sort();
+
+    tagSel.innerHTML = '<option value="">Wszystkie</option>' +
+      tags.map(function(t) {
+        return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>';
+      }).join('');
+  }
+
+  function renderAnnouncements() {
+    var grid = $('#aGrid');
+    var stats = $('#aStats');
+    if (!grid) return;
+
+    var announcements = announcementsState.data;
+    var query = ($('#aQuery') ? $('#aQuery').value : '').trim().toLowerCase();
+    var tagFilter = ($('#aTag') ? $('#aTag').value : '');
+
+    // Filtruj
+    var filtered = announcements.filter(function(a) {
+      if (tagFilter) {
+        var tags = Array.isArray(a.tags) ? a.tags.map(String) : [];
+        if (tags.indexOf(tagFilter) === -1) return false;
+      }
+      if (!query) return true;
+
+      var searchable = [
+        a.title, a.body, a.date, a.expires
+      ].concat(Array.isArray(a.tags) ? a.tags : []).join(' ').toLowerCase();
+
+      return searchable.indexOf(query) !== -1;
+    });
+
+    // Statystyki
+    if (stats) {
+      stats.innerHTML = '<span class="metaDot ok"></span><span>Wynik: <b>' + 
+        filtered.length + '</b> / ' + announcements.length + ' • ' + escapeHtml(formatNow()) + '</span>';
+    }
+
+    // Brak ogłoszeń
+    if (announcements.length === 0) {
+      grid.innerHTML = '<div class="empty"><h3>Brak ogłoszeń</h3>' +
+        '<p class="muted">Prowadzący publikuje ogłoszenia w <code>data/announcements.json</code>.</p></div>';
+      return;
+    }
+
+    // Brak wyników
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty"><h3>Brak wyników</h3>' +
+        '<p class="muted">Zmień filtr tagów lub wyszukiwanie.</p></div>';
+      return;
+    }
+
+    // Renderuj karty
+    var html = filtered.map(function(a) {
+      var title = escapeHtml(a.title || 'Ogłoszenie');
+      var body = escapeHtml(a.body || '').replace(/\n/g, '<br>');
+      var dateStr = a.date ? escapeHtml(a.date) : '';
+      var expiresStr = a.expires ? escapeHtml(a.expires) : '';
+      var isImportant = !!a.important;
+
+      var pillsHtml = '';
+      if (isImportant) {
+        pillsHtml += '<span class="pill red"><span class="dot"></span>WAŻNE</span>';
+      } else {
+        pillsHtml += '<span class="pill teal"><span class="dot"></span>INFO</span>';
+      }
+      if (dateStr) pillsHtml += '<span class="pill"><span class="dot"></span>' + dateStr + '</span>';
+      if (expiresStr) pillsHtml += '<span class="pill warn"><span class="dot"></span>do ' + expiresStr + '</span>';
+
+      var tagsHtml = '';
+      if (Array.isArray(a.tags) && a.tags.length) {
+        tagsHtml = '<span class="muted"><code>tagi:</code> ' + escapeHtml(a.tags.join(', ')) + '</span>';
+      }
+
+      return '<article class="card">' +
+        '<div class="cardTop"><div><h3 class="cardTitle">' + title + '</h3>' +
+        '<div class="cardMeta">' + (dateStr ? 'Data: ' + dateStr : '') + '</div></div>' +
+        '<div class="pills">' + pillsHtml + '</div></div>' +
+        '<div class="cardBody">' + body + '</div>' +
+        '<div class="cardBottom">' + (tagsHtml || '<span></span>') + '</div></article>';
+    }).join('');
+
+    grid.innerHTML = html;
+  }
+
+  function loadAnnouncements() {
+    var grid = $('#aGrid');
+    if (!grid) return;
+
+    setStatus('Ładowanie ogłoszeń…');
+    grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+
+    var url = buildUrl('data/announcements.json') + '?v=' + Date.now();
+
+    fetchJson(url, 15000)
+      .then(function(raw) {
+        var data = normalizeData(raw);
+        announcementsState.allData = data.items || [];
+
+        // Filtruj wygasłe
+        var showExpired = $('#aShowExpired') && $('#aShowExpired').checked;
+        var filtered = announcementsState.allData;
+        
+        if (!showExpired) {
+          filtered = filtered.filter(function(a) {
+            return !isExpired(a.expires);
+          });
+        }
+
+        // Sortuj: ważne najpierw, potem po dacie malejąco
+        filtered.sort(function(a, b) {
+          var aImp = a.important ? 1 : 0;
+          var bImp = b.important ? 1 : 0;
+          if (aImp !== bImp) return bImp - aImp;
+          var aDate = a.date || '';
+          var bDate = b.date || '';
+          return bDate.localeCompare(aDate);
+        });
+
+        announcementsState.data = filtered;
+        
+        fillAnnouncementFilters(announcementsState.data);
+        renderAnnouncements();
+
+        var genInfo = data.meta && data.meta.generated_at ? ' • aktualizacja: ' + data.meta.generated_at : '';
+        setStatus('Ogłoszenia: ' + announcementsState.data.length + genInfo, 'ok');
+      })
+      .catch(function(err) {
+        console.error('Błąd ładowania ogłoszeń:', err);
+        setStatus('Błąd ładowania ogłoszeń', 'bad');
+        grid.innerHTML = '<div class="empty"><h3>Nie udało się wczytać ogłoszeń</h3>' +
+          '<p class="muted">Sprawdź konsolę przeglądarki (F12) lub poczekaj chwilę i odśwież stronę.</p></div>';
+      });
+  }
+
+  function initAnnouncements() {
+    loadAnnouncements();
+
+    // Event listeners (tylko raz)
+    if (!announcementsState.initialized) {
+      announcementsState.initialized = true;
+      
+      var rerenderDebounced = debounce(renderAnnouncements, 200);
+      
+      var queryEl = $('#aQuery');
+      var tagEl = $('#aTag');
+      var expiredEl = $('#aShowExpired');
+      var resetEl = $('#aReset');
+
+      if (queryEl) queryEl.addEventListener('input', rerenderDebounced);
+      if (tagEl) tagEl.addEventListener('change', renderAnnouncements);
+      if (expiredEl) expiredEl.addEventListener('change', loadAnnouncements);
+      if (resetEl) {
+        resetEl.addEventListener('click', function() {
+          if (queryEl) queryEl.value = '';
+          if (tagEl) tagEl.value = '';
+          renderAnnouncements();
+        });
+      }
+    }
+  }
+
+  // ============================================
+  // INICJALIZACJA
+  // ============================================
+
+  function init() {
     try {
       initTheme();
-      bindModal();
+      initModal();
 
-      const page = document.body?.dataset?.page || "";
-      if(page === "materials") await initMaterials();
-      if(page === "announcements") await initAnnouncements();
-    } catch(e) {
-      console.error("Błąd inicjalizacji:", e);
-      toast("Błąd inicjalizacji strony", "bad");
+      var page = document.body.getAttribute('data-page') || '';
+
+      if (page === 'materials') {
+        initMaterials();
+      } else if (page === 'announcements') {
+        initAnnouncements();
+      }
+    } catch (err) {
+      console.error('Błąd inicjalizacji:', err);
+      setStatus('Błąd inicjalizacji strony', 'bad');
     }
-  };
+  }
 
-  // Uruchom po załadowaniu DOM lub natychmiast jeśli już załadowany
-  if(document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+  // Uruchom po załadowaniu DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
+
 })();

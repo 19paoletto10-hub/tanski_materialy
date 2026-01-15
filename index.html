@@ -1,14 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>Ogłoszenia — PWr Wydział Medyczny</title>
-  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body data-page="announcements">
+
   <header class="topbar">
     <div class="brand">
       <div class="mark" aria-hidden="true">PWr</div>
@@ -27,25 +27,23 @@
   <main class="layout">
     <aside class="side">
       <nav class="nav">
-        <a class="navItem active" href="./index.html">Ogłoszenia</a>
-        <a class="navItem" href="./materials.html">Materiały</a>
+        <a class="navItem active" href="index.html">Ogłoszenia</a>
+        <a class="navItem" href="materials.html">Materiały</a>
       </nav>
 
       <div class="panel">
         <div class="panelTitle">Status</div>
         <div class="panelBody">
           <div class="badge" id="statusBar" aria-live="polite">Uruchamianie…</div>
-          <div class="hint">
-            Archiwalne ogłoszenia możesz włączyć poniżej.
-          </div>
-          <a class="link" href="./TROUBLESHOOTING.md" target="_blank" rel="noopener">Pomoc techniczna</a>
+          <div class="hint">Archiwalne ogłoszenia możesz włączyć poniżej.</div>
+          <a class="link" href="TROUBLESHOOTING.md" target="_blank" rel="noopener">Pomoc techniczna</a>
         </div>
       </div>
 
       <div class="panel">
         <div class="panelTitle">Dla prowadzącego</div>
         <div class="panelBody">
-          <div class="hint">Edytuj plik <span class="mono">data/announcements.json</span> (commit/push).</div>
+          <div class="hint">Edytuj plik <code>data/announcements.json</code> (commit/push).</div>
         </div>
       </div>
     </aside>
@@ -64,23 +62,20 @@
       <div class="controls">
         <div class="field">
           <label for="aQuery">Szukaj</label>
-          <input id="aQuery" type="search" placeholder="np. termin, zaliczenie, konsultacje…" autocomplete="off" />
+          <input id="aQuery" type="search" placeholder="np. termin, zaliczenie, konsultacje…" autocomplete="off">
         </div>
-
         <div class="field">
           <label for="aTag">Tag</label>
           <select id="aTag">
             <option value="">Wszystkie</option>
           </select>
         </div>
-
         <div class="field">
           <label class="toggle">
-            <input id="aShowExpired" type="checkbox" />
+            <input id="aShowExpired" type="checkbox">
             <span>Pokaż archiwalne</span>
           </label>
         </div>
-
         <div class="field actions">
           <label>&nbsp;</label>
           <button id="aReset" class="btn" type="button">Wyczyść</button>
@@ -97,6 +92,6 @@
     </section>
   </main>
 
-  <script src="./assets/js/app.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>

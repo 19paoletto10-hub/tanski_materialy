@@ -1,14 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>Materiały dydaktyczne — PWr Wydział Medyczny</title>
-  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body data-page="materials">
+
   <header class="topbar">
     <div class="brand">
       <div class="mark" aria-hidden="true">PWr</div>
@@ -17,7 +17,6 @@
         <div class="subtitle">Wydział Medyczny • materiały dydaktyczne i ogłoszenia</div>
       </div>
     </div>
-
     <div class="topActions">
       <button class="iconBtn" id="themeBtn" type="button" aria-label="Zmień motyw">
         <span class="icon" aria-hidden="true">◐</span>
@@ -28,18 +27,16 @@
   <main class="layout">
     <aside class="side">
       <nav class="nav">
-        <a class="navItem" href="./index.html">Ogłoszenia</a>
-        <a class="navItem active" href="./materials.html">Materiały</a>
+        <a class="navItem" href="index.html">Ogłoszenia</a>
+        <a class="navItem active" href="materials.html">Materiały</a>
       </nav>
 
       <div class="panel">
         <div class="panelTitle">Status</div>
         <div class="panelBody">
           <div class="badge" id="statusBar" aria-live="polite">Uruchamianie…</div>
-          <div class="hint">
-            Jeśli widzisz <b>„Ładowanie…"</b> zbyt długo: odśwież <span class="kbd">Ctrl</span>+<span class="kbd">F5</span>.
-          </div>
-          <a class="link" href="./TROUBLESHOOTING.md" target="_blank" rel="noopener">Pomoc techniczna</a>
+          <div class="hint">Jeśli widzisz <b>„Ładowanie…"</b> zbyt długo: odśwież <kbd>Ctrl</kbd>+<kbd>F5</kbd>.</div>
+          <a class="link" href="TROUBLESHOOTING.md" target="_blank" rel="noopener">Pomoc techniczna</a>
         </div>
       </div>
 
@@ -47,9 +44,9 @@
         <div class="panelTitle">Dla prowadzącego</div>
         <div class="panelBody">
           <ol class="list">
-            <li>Wgraj plik do <span class="mono">wyklady/</span></li>
-            <li>Commit + push do <span class="mono">main</span></li>
-            <li>GitHub Actions zaktualizuje <span class="mono">data/materials.json</span></li>
+            <li>Wgraj plik do <code>wyklady/</code></li>
+            <li>Commit + push do <code>main</code></li>
+            <li>GitHub Actions zaktualizuje <code>data/materials.json</code></li>
           </ol>
         </div>
       </div>
@@ -59,7 +56,7 @@
       <div class="hero">
         <div>
           <h1>Materiały</h1>
-          <p class="lead">Lista jest generowana automatycznie na podstawie zawartości folderu <span class="mono">wyklady/</span>.</p>
+          <p class="lead">Lista jest generowana automatycznie na podstawie zawartości folderu <code>wyklady/</code>.</p>
         </div>
         <div class="heroMeta">
           <div class="metaLine" id="mStats">—</div>
@@ -69,23 +66,20 @@
       <div class="controls">
         <div class="field">
           <label for="mQuery">Szukaj</label>
-          <input id="mQuery" type="search" placeholder="np. reumatologia, diagnostyka, RZS…" autocomplete="off" />
+          <input id="mQuery" type="search" placeholder="np. reumatologia, diagnostyka, RZS…" autocomplete="off">
         </div>
-
         <div class="field">
           <label for="mType">Typ</label>
           <select id="mType">
             <option value="">Wszystkie</option>
           </select>
         </div>
-
         <div class="field">
           <label for="mYear">Rok</label>
           <select id="mYear">
             <option value="">Wszystkie</option>
           </select>
         </div>
-
         <div class="field actions">
           <label>&nbsp;</label>
           <button id="mReset" class="btn" type="button">Wyczyść</button>
@@ -96,19 +90,20 @@
 
       <div class="grid" id="mGrid" aria-live="polite"></div>
 
+      <!-- Modal PDF -->
       <div class="modal" id="pdfModal" hidden>
-        <div class="modalOverlay" data-close></div>
-        <div class="modalCard" role="dialog" aria-modal="true" aria-label="Podgląd PDF">
+        <div class="modalOverlay" id="modalOverlay"></div>
+        <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="pdfTitle">
           <div class="modalTop">
             <div class="modalTitle" id="pdfTitle">Podgląd</div>
-            <button class="iconBtn" type="button" data-close aria-label="Zamknij">✕</button>
+            <button class="iconBtn modalClose" type="button" id="modalCloseBtn" aria-label="Zamknij">✕</button>
           </div>
           <div class="modalBody">
             <iframe id="pdfFrame" title="Podgląd PDF" loading="lazy"></iframe>
           </div>
           <div class="modalBottom">
-            <a id="pdfDownload" class="btn" href="#" download data-close>Pobierz</a>
-            <button class="btn ghost" type="button" data-close>Zamknij</button>
+            <a id="pdfDownload" class="btn" href="#" download>Pobierz</a>
+            <button class="btn ghost" type="button" id="modalCloseBtn2">Zamknij</button>
           </div>
         </div>
       </div>
@@ -121,6 +116,6 @@
     </section>
   </main>
 
-  <script src="./assets/js/app.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
