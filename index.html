@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <script>
+    // Canonical URL: ensure trailing slash for GitHub Project Pages
+    (function () {
+      var p = window.location.pathname || "";
+      if (!p.endsWith("/") && !/\.html?$/.test(p)) {
+        window.location.replace(p + "/" + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Materiały dydaktyczne — PWr Wydział Medyczny</title>
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+
+<body data-page="materials">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">PWr</div>
+      <div class="brandText">
+        <div class="title">gen. dr hab. lek. Wojciech Tański, prof. PWr</div>
+        <div class="subtitle">Wydział Medyczny • materiały dydaktyczne i ogłoszenia</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <button class="iconBtn" id="themeBtn" type="button" aria-label="Zmień motyw">
+        <span class="icon" aria-hidden="true">◐</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="side">
+      <nav class="nav">
+        <a class="navItem active" href="./index.html">Materiały</a>
+        <a class="navItem" href="./announcements.html">Ogłoszenia</a>
+      </nav>
+
+      <div class="panel">
+        <div class="panelTitle">Status</div>
+        <div class="panelBody">
+          <div class="badge" id="statusBar" aria-live="polite">Uruchamianie…</div>
+          <div class="hint">
+            Jeśli widzisz <b>„Ładowanie…”</b> zbyt długo: odśwież <span class="kbd">Ctrl</span>+<span class="kbd">F5</span>.
+          </div>
+          <a class="link" href="./TROUBLESHOOTING.md" target="_blank" rel="noopener">Pomoc techniczna</a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelTitle">Dla prowadzącego</div>
+        <div class="panelBody">
+          <ol class="list">
+            <li>Wgraj plik do <span class="mono">wyklady/</span></li>
+            <li>Commit + push do <span class="mono">main</span></li>
+            <li>GitHub Actions zaktualizuje <span class="mono">data/materials.json</span></li>
+          </ol>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="hero">
+        <div>
+          <h1>Materiały</h1>
+          <p class="lead">Lista jest generowana automatycznie na podstawie zawartości folderu <span class="mono">wyklady/</span>.</p>
+        </div>
+        <div class="heroMeta">
+          <div class="metaLine" id="mStats">—</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="field">
+          <label for="mQuery">Szukaj</label>
+          <input id="mQuery" type="search" placeholder="np. reumatologia, diagnostyka, RZS…" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="mType">Typ</label>
+          <select id="mType">
+            <option value="">Wszystkie</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="mYear">Rok</label>
+          <select id="mYear">
+            <option value="">Wszystkie</option>
+          </select>
+        </div>
+
+        <div class="field actions">
+          <label>&nbsp;</label>
+          <button id="mReset" class="btn" type="button">Wyczyść</button>
+        </div>
+      </div>
+
+      <div class="chips" id="mChips" aria-label="Szybkie filtry typów"></div>
+
+      <div class="grid" id="mGrid" aria-live="polite"></div>
+
+      <div class="modal" id="pdfModal" hidden>
+        <div class="modalOverlay" data-close></div>
+        <div class="modalCard" role="dialog" aria-modal="true" aria-label="Podgląd PDF">
+          <div class="modalTop">
+            <div class="modalTitle" id="pdfTitle">Podgląd</div>
+            <button class="iconBtn" type="button" data-close aria-label="Zamknij">✕</button>
+          </div>
+          <div class="modalBody">
+            <iframe id="pdfFrame" title="Podgląd PDF" loading="lazy"></iframe>
+          </div>
+          <div class="modalBottom">
+            <a id="pdfDownload" class="btn" href="#" download>Pobierz</a>
+            <button class="btn ghost" type="button" data-close>Zamknij</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <span>© PWr • Wydział Medyczny</span>
+        <span class="sep">•</span>
+        <span class="muted">Udostępnione na wykładzie</span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
