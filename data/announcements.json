@@ -4,26 +4,22 @@
   },
   "items": [
     {
+      "id": "egzamin-2026-01",
+      "title": "EGZAMIN ZALICZENIOWY - KOLOKWIUM",
+      "date": "2026-01-15",
+      "expires": "",
+      "important": true,
+      "tags": ["egzamin", "wazne"],
+      "body": "Drodzy Studenci, Egzamin bedzie sprawdzal wiedze jaka przyswoiliscie w tym semestrze. W sekcji materialy udostepniam pliki przydatne do przygotowania notatek do egzaminu."
+    },
+    {
       "id": "start-2026-01",
       "title": "Komunikat organizacyjny",
       "date": "2026-01-15",
       "expires": "",
       "important": false,
-      "tags": [
-        "informacja"
-      ],
-      "body": "Materiały do zajęć są dostępne w zakładce „Materiały”.\nProszę regularnie sprawdzać ogłoszenia."
-    }
-  ]
-}
-{
-  "items": [
-    {
-      "id": 1,
-      "date": "2026-01-15",
-      "title": "🎉 EGZAMIN ZALICZENIOWY - KOLOWKIUM",
-      "body": "Drodzy Studenci, Egzamin bedzię sparawdzał wiedzę jaką przyswoiliście w tym semestrze. W sekcji materiały udostępnam pliki przydatne do przygotowania notatek do egzaminu",
-      "archived": false
+      "tags": ["informacja"],
+      "body": "Materialy do zajec sa dostepne w zakladce Materialy. Prosze regularnie sprawdzac ogloszenia."
     }
   ]
 }
