@@ -1,8 +1,21 @@
 (() => {
   "use strict";
 
-  const BASE = new URL(document.baseURI);
-  const u = (path) => new URL(path, BASE).toString();
+  // Oblicz bazowy URL względem lokalizacji strony
+  const getBaseUrl = () => {
+    const loc = window.location;
+    const path = loc.pathname;
+    // Usuń nazwę pliku (np. index.html) z ścieżki
+    const dir = path.substring(0, path.lastIndexOf('/') + 1);
+    return loc.origin + dir;
+  };
+
+  const BASE_URL = getBaseUrl();
+  const u = (path) => {
+    // Usuń "./" z początku ścieżki jeśli istnieje
+    const cleanPath = path.replace(/^\.\//, '');
+    return BASE_URL + cleanPath;
+  };
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
@@ -51,12 +64,19 @@
 
     let res;
     try{
+      console.log("[fetchJson] Pobieranie:", url);
       res = await fetch(url, {
         method: "GET",
         headers: { "Accept": "application/json" },
         cache: "no-store",
         signal: controller.signal
       });
+    } catch(fetchErr) {
+      clearTimeout(t);
+      console.error("[fetchJson] Błąd fetch:", fetchErr);
+      const err = new Error(`Błąd połączenia: ${fetchErr.message}`);
+      err.url = url;
+      throw err;
     } finally {
       clearTimeout(t);
     }
@@ -67,7 +87,15 @@
       err.url = url;
       throw err;
     }
-    return await res.json();
+    
+    try {
+      return await res.json();
+    } catch(jsonErr) {
+      console.error("[fetchJson] Błąd parsowania JSON:", jsonErr);
+      const err = new Error(`Nieprawidłowy format JSON: ${jsonErr.message}`);
+      err.url = url;
+      throw err;
+    }
   };
 
   const normalizePayload = (raw) => {
@@ -407,13 +435,23 @@
      Boot
      =========================== */
   const init = async () => {
-    initTheme();
-    bindModal();
+    try {
+      initTheme();
+      bindModal();
 
-    const page = document.body?.dataset?.page || "";
-    if(page === "materials") await initMaterials();
-    if(page === "announcements") await initAnnouncements();
+      const page = document.body?.dataset?.page || "";
+      if(page === "materials") await initMaterials();
+      if(page === "announcements") await initAnnouncements();
+    } catch(e) {
+      console.error("Błąd inicjalizacji:", e);
+      toast("Błąd inicjalizacji strony", "bad");
+    }
   };
 
-  document.addEventListener("DOMContentLoaded", init);
+  // Uruchom po załadowaniu DOM lub natychmiast jeśli już załadowany
+  if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
