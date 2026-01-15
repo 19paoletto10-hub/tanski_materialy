@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Rozwiązywanie problemów — Portal Dydaktyczny</title>
+  <style>
+    :root {
+      --pwr-red: #9A342D;
+      --med-teal: #00b2ba;
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --card2: #f0f3f6;
+      --text: #101828;
+      --muted: #475467;
+      --line: rgba(16,24,40,.14);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b0f14;
+      --card: #0f1520;
+      --card2: #101a2a;
+      --text: #e6e9ef;
+      --muted: rgba(230,233,239,.72);
+      --line: rgba(255,255,255,.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--pwr-red), #7a2a24);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 10px rgba(0,0,0,.2);
+    }
+
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .header-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .header-btn.primary {
+      background: white;
+      color: var(--pwr-red);
+    }
+
+    .header-btn.secondary {
+      background: rgba(255,255,255,.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,.3);
+    }
+
+    .header-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Search */
+    .search-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+
+    .search-box label {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 50px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--card2);
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--med-teal);
+      box-shadow: 0 0 0 4px rgba(0,178,186,.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      opacity: 0.5;
+    }
+
+    .search-stats {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Category Filters */
+    .categories {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .category-btn {
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-btn:hover {
+      border-color: var(--med-teal);
+      color: var(--text);
+    }
+
+    .category-btn.active {
+      background: linear-gradient(135deg, rgba(0,178,186,.1), rgba(0,178,186,.05));
+      border-color: var(--med-teal);
+      color: var(--med-teal);
+    }
+
+    .category-btn .count {
+      background: var(--card2);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .category-btn.active .count {
+      background: rgba(0,178,186,.2);
+    }
+
+    /* Problems Grid */
+    .problems-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    /* Problem Card */
+    .problem-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,.04);
+      transition: all 0.3s ease;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.08);
+    }
+
+    .problem-card.hidden {
+      display: none;
+    }
+
+    .problem-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: linear-gradient(135deg, rgba(0,178,186,.02), transparent);
+    }
+
+    .problem-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .problem-icon.error { background: rgba(239,68,68,.1); }
+    .problem-icon.warning { background: rgba(245,158,11,.1); }
+    .problem-icon.info { background: rgba(59,130,246,.1); }
+    .problem-icon.config { background: rgba(139,92,246,.1); }
+
+    .problem-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .problem-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .problem-desc {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .problem-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag.json { background: rgba(245,158,11,.1); color: #b45309; }
+    .tag.github { background: rgba(0,0,0,.1); color: var(--text); }
+    .tag.css { background: rgba(59,130,246,.1); color: #2563eb; }
+    .tag.js { background: rgba(234,179,8,.1); color: #a16207; }
+    .tag.config { background: rgba(139,92,246,.1); color: #7c3aed; }
+
+    .expand-icon {
+      font-size: 20px;
+      transition: transform 0.3s ease;
+      color: var(--muted);
+    }
+
+    .problem-card.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Solution Panel */
+    .solution-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: var(--card2);
+    }
+
+    .problem-card.expanded .solution-panel {
+      max-height: 2000px;
+    }
+
+    .solution-content {
+      padding: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .solution-section {
+      margin-bottom: 24px;
+    }
+
+    .solution-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .solution-section h4 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cause-list, .solution-steps {
+      list-style: none;
+    }
+
+    .cause-list li, .solution-steps li {
+      padding: 10px 0;
+      padding-left: 28px;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cause-list li:last-child, .solution-steps li:last-child {
+      border-bottom: none;
+    }
+
+    .cause-list li::before {
+      content: '⚠️';
+      position: absolute;
+      left: 0;
+      top: 10px;
+    }
+
+    .solution-steps li::before {
+      content: counter(step);
+      counter-increment: step;
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+      background: var(--med-teal);
+      color: white;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+    }
+
+    .solution-steps {
+      counter-reset: step;
+    }
+
+    /* Code Block */
+    .code-block {
+      background: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .code-header {
+      background: #2d2d2d;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-lang {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid #444;
+      color: #888;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #444;
+      color: white;
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .code-content {
+      padding: 16px;
+      overflow-x: auto;
+    }
+
+    .code-content pre {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d4d4d4;
+    }
+
+    .code-content .comment { color: #6a9955; }
+    .code-content .string { color: #ce9178; }
+    .code-content .keyword { color: #569cd6; }
+    .code-content .number { color: #b5cea8; }
+
+    /* Tip Box */
+    .tip-box {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .tip-box.success {
+      background: rgba(16,185,129,.1);
+      border: 1px solid rgba(16,185,129,.3);
+    }
+
+    .tip-box.warning {
+      background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.3);
+    }
+
+    .tip-box.info {
+      background: rgba(59,130,246,.1);
+      border: 1px solid rgba(59,130,246,.3);
+    }
+
+    .tip-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .tip-content {
+      font-size: 14px;
+    }
+
+    .tip-content strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 80px;
+      padding: 40px 20px;
+      background: var(--card);
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--med-teal);
+    }
+
+    .footer-copy {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .problem-card {
+      animation: fadeIn 0.4s ease backwards;
+    }
+
+    .problem-card:nth-child(1) { animation-delay: 0.05s; }
+    .problem-card:nth-child(2) { animation-delay: 0.1s; }
+    .problem-card:nth-child(3) { animation-delay: 0.15s; }
+    .problem-card:nth-child(4) { animation-delay: 0.2s; }
+    .problem-card:nth-child(5) { animation-delay: 0.25s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header { padding: 40px 16px; }
+      .header h1 { font-size: 28px; }
+      .container { padding: 24px 16px; }
+      .problem-header { padding: 16px; }
+      .problem-icon { width: 40px; height: 40px; font-size: 20px; }
+      .problem-title { font-size: 15px; }
+      .solution-content { padding: 16px; }
+      .categories { gap: 8px; }
+      .category-btn { padding: 8px 14px; font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+      .header-actions { flex-direction: column; }
+      .header-btn { width: 100%; justify-content: center; }
+      .problem-tags { gap: 6px; }
+      .tag { font-size: 10px; padding: 3px 8px; }
+    }
+
+    /* Print styles */
+    @media print {
+      .theme-toggle, .search-box, .categories, .header-actions { display: none; }
+      .problem-card { break-inside: avoid; }
+      .solution-panel { max-height: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Zmień motyw">◐</button>
+
+  <header class="header">
+    <div class="header-content">
+      <h1>🛠️ Rozwiązywanie problemów</h1>
+      <p>Kompleksowy przewodnik po najczęstszych problemach i ich rozwiązaniach</p>
+      <div class="header-actions">
+        <a href="index.html" class="header-btn primary">← Powrót do strony</a>
+        <a href="https://github.com/19paoletto10-hub/tanski_materialy/issues" class="header-btn secondary" target="_blank">📝 Zgłoś problem</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Search -->
+    <div class="search-box">
+      <label for="searchInput">🔍 Wyszukaj problem</label>
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔎</span>
+        <input type="search" id="searchInput" class="search-input" placeholder="Opisz swój problem, np. 'JSON error', 'materiały nie ładują się'...">
+      </div>
+      <div class="search-stats" id="searchStats">Wyświetlono wszystkie problemy</div>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories" id="categories">
+      <button class="category-btn active" data-category="all">
+        Wszystkie <span class="count" id="countAll">0</span>
+      </button>
+      <button class="category-btn" data-category="json">
+        📄 JSON <span class="count" id="countJson">0</span>
+      </button>
+      <button class="category-btn" data-category="github">
+        🐙 GitHub <span class="count" id="countGithub">0</span>
+      </button>
+      <button class="category-btn" data-category="display">
+        🖥️ Wyświetlanie <span class="count" id="countDisplay">0</span>
+      </button>
+      <button class="category-btn" data-category="config">
+        ⚙️ Konfiguracja <span class="count" id="countConfig">0</span>
+      </button>
+    </div>
+
+    <!-- Problems Grid -->
+    <div class="problems-grid" id="problemsGrid">
+      <!-- Problems will be dynamically inserted here -->
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <h2 class="section-title">❓ Często zadawane pytania</h2>
+      <p class="section-subtitle">Odpowiedzi na najpopularniejsze pytania</p>
+      
+      <div class="problems-grid" id="faqGrid">
+        <!-- FAQ will be dynamically inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="index.html" class="footer-link">Strona główna</a>
+      <a href="materials.html" class="footer-link">Materiały</a>
+      <a href="TEMPLATE.md" class="footer-link">Instrukcja szablonu</a>
+      <a href="https://github.com/19paoletto10-hub/tanski_materialy" class="footer-link" target="_blank">GitHub</a>
+    </div>
+    <p class="footer-copy">© PWr • Wydział Medyczny • Portal Dydaktyczny v1.0.0</p>
+  </footer>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ============================================
+      // DATA - Problems Database
+      // ============================================
+      
+      const problems = [
+        {
+          id: 'json-syntax',
+          category: 'json',
+          icon: '❌',
+          iconType: 'error',
+          title: 'Błąd składni JSON',
+          description: 'Plik JSON nie może być odczytany z powodu błędu składni',
+          tags: ['json', 'config'],
+          causes: [
+            'Brakujący przecinek między elementami',
+            'Nieprawidłowe cudzysłowy (użycie \' zamiast ")',
+            'Przecinek po ostatnim elemencie w tablicy/obiekcie',
+            'Brakujące nawiasy klamrowe lub kwadratowe'
+          ],
+          solutions: [
+            {
+              step: 'Użyj walidatora JSON online',
+              detail: 'Skopiuj zawartość pliku do <a href="https://jsonlint.com" target="_blank">jsonlint.com</a> - pokaże dokładne miejsce błędu'
+            },
+            {
+              step: 'Sprawdź cudzysłowy',
+              detail: 'JSON wymaga podwójnych cudzysłowów ("tekst"), nie pojedynczych (\'tekst\')'
+            },
+            {
+              step: 'Usuń zbędne przecinki',
+              detail: 'Ostatni element w obiekcie/tablicy nie może mieć przecinka'
+            }
+          ],
+          codeExample: {
+            lang: 'json',
+            bad: '{\n  "name": "Jan",\n  "age": 25,  // ❌ Przecinek po ostatnim!\n}',
+            good: '{\n  "name": "Jan",\n  "age": 25\n}'
+          },
+          tip: {
+            type: 'info',
+            title: 'Wskazówka',
+            content: 'Używaj edytora z podświetlaniem składni JSON (VS Code, Sublime Text) - automatycznie podkreśli błędy.'
+          }
+        },
+        {
+          id: 'materials-not-loading',
+          category: 'display',
+          icon: '📚',
+          iconType: 'warning',
+          title: 'Materiały nie ładują się',
+          description: 'Strona wyświetla "Ładowanie..." lub puste okno zamiast listy materiałów',
+          tags: ['js', 'github'],
+          causes: [
+            'Plik materials.json nie został wygenerowany',
+            'GitHub Actions nie ma uprawnień do zapisu',
+            'Błąd sieciowy lub cache przeglądarki',
+            'Folder wyklady/ nie zawiera żadnych plików'
+          ],
+          solutions: [
+            {
+              step: 'Sprawdź GitHub Actions',
+              detail: 'Przejdź do zakładki Actions w repozytorium i sprawdź czy workflow "Generate Materials Index" zakończył się powodzeniem'
+            },
+            {
+              step: 'Nadaj uprawnienia zapisu',
+              detail: 'Settings → Actions → General → Workflow permissions → "Read and write permissions"'
+            },
+            {
+              step: 'Odśwież stronę',
+              detail: 'Użyj Ctrl+F5 (Windows) lub Cmd+Shift+R (Mac) aby wymusić pełne odświeżenie'
+            },
+            {
+              step: 'Dodaj pliki do wyklady/',
+              detail: 'Upewnij się, że folder wyklady/ zawiera przynajmniej jeden plik PDF, DOCX lub PPTX'
+            }
+          ],
+          tip: {
+            type: 'warning',
+            title: 'Uwaga',
+            content: 'Po pierwszym pushu może minąć 1-2 minuty zanim GitHub Actions wygeneruje plik materials.json.'
+          }
+        },
+        {
+          id: 'announcements-error',
+          category: 'json',
+          icon: '📢',
+          iconType: 'error',
+          title: 'Błąd ładowania ogłoszeń',
+          description: 'Ogłoszenia nie wyświetlają się lub pokazuje się komunikat o błędzie',
+          tags: ['json'],
+          causes: [
+            'Nieprawidłowa struktura pliku announcements.json',
+            'Dwa obiekty JSON w jednym pliku (po ręcznej edycji)',
+            'Brakująca tablica "items"',
+            'Plik nie istnieje lub ma nieprawidłową ścieżkę'
+          ],
+          solutions: [
+            {
+              step: 'Sprawdź strukturę pliku',
+              detail: 'Plik musi zawierać JEDEN obiekt z kluczem "items" będącym tablicą'
+            },
+            {
+              step: 'Użyj prawidłowego szablonu',
+              detail: 'Skopiuj poniższy szablon i dostosuj do swoich potrzeb'
+            }
+          ],
+          codeExample: {
+            lang: 'json',
+            good: '{\n  "meta": {\n    "version": "1.0",\n    "updated_at": "2026-01-15"\n  },\n  "items": [\n    {\n      "id": 1,\n      "date": "2026-01-15",\n      "title": "Tytuł ogłoszenia",\n      "body": "Treść ogłoszenia...",\n      "important": false,\n      "tags": ["info"]\n    }\n  ]\n}'
+          },
+          tip: {
+            type: 'success',
+            title: 'Dobre praktyki',
+            content: 'Zawsze edytuj plik przez GitHub Web Editor - automatycznie waliduje JSON przed zapisem.'
+          }
+        },
+        {
+          id: 'github-pages-404',
+          category: 'github',
+          icon: '🔗',
+          iconType: 'error',
+          title: 'Strona 404 na GitHub Pages',
+          description: 'Po wejściu na adres GitHub Pages wyświetla się błąd 404',
+          tags: ['github'],
+          causes: [
+            'GitHub Pages nie jest włączony',
+            'Nieprawidłowa gałąź lub folder źródłowy',
+            'Brak pliku index.html w katalogu głównym',
+            'Wdrożenie jeszcze się nie zakończyło'
+          ],
+          solutions: [
+            {
+              step: 'Włącz GitHub Pages',
+              detail: 'Settings → Pages → Source: "Deploy from a branch" → Branch: main, Folder: / (root)'
+            },
+            {
+              step: 'Sprawdź status wdrożenia',
+              detail: 'W zakładce Actions sprawdź czy workflow "pages-build-deployment" zakończył się sukcesem'
+            },
+            {
+              step: 'Poczekaj na propagację',
+              detail: 'Pierwsze wdrożenie może trwać do 10 minut. Odśwież stronę po chwili.'
+            }
+          ],
+          tip: {
+            type: 'info',
+            title: 'Adres strony',
+            content: 'Format adresu: https://TWÓJ-USERNAME.github.io/NAZWA-REPOZYTORIUM/'
+          }
+        },
+        {
+          id: 'dark-mode-not-working',
+          category: 'display',
+          icon: '🌙',
+          iconType: 'info',
+          title: 'Tryb ciemny nie działa',
+          description: 'Przycisk zmiany motywu nie reaguje lub motyw się nie zapisuje',
+          tags: ['js', 'css'],
+          causes: [
+            'JavaScript jest wyłączony w przeglądarce',
+            'LocalStorage jest zablokowany (tryb prywatny)',
+            'Błąd w konsoli przeglądarki',
+            'Cache przeglądarki'
+          ],
+          solutions: [
+            {
+              step: 'Włącz JavaScript',
+              detail: 'Upewnij się, że JavaScript jest włączony w ustawieniach przeglądarki'
+            },
+            {
+              step: 'Sprawdź tryb prywatny',
+              detail: 'W trybie incognito/prywatnym localStorage może być zablokowany - otwórz stronę w normalnym oknie'
+            },
+            {
+              step: 'Wyczyść cache',
+              detail: 'Ctrl+Shift+Delete → Wyczyść dane przeglądania → Pliki w pamięci podręcznej'
+            }
+          ],
+          tip: {
+            type: 'info',
+            title: 'Domyślny motyw',
+            content: 'Strona automatycznie wykrywa preferencje systemowe (jasny/ciemny) przy pierwszym uruchomieniu.'
+          }
+        },
+        {
+          id: 'pdf-not-displaying',
+          category: 'display',
+          icon: '📄',
+          iconType: 'warning',
+          title: 'PDF nie wyświetla się w podglądzie',
+          description: 'Modal otwiera się, ale PDF jest pusty lub pokazuje błąd',
+          tags: ['js', 'github'],
+          causes: [
+            'Plik PDF jest zbyt duży (>25MB)',
+            'Przeglądarka blokuje wyświetlanie PDF',
+            'Plik jest uszkodzony lub nieprawidłowo zakodowany',
+            'CORS blokuje dostęp do pliku'
+          ],
+          solutions: [
+            {
+              step: 'Sprawdź rozmiar pliku',
+              detail: 'GitHub Pages ma limit 100MB na plik, ale duże PDF mogą wolno się ładować. Rozważ kompresję.'
+            },
+            {
+              step: 'Użyj przycisku Pobierz',
+              detail: 'Jeśli podgląd nie działa, użyj przycisku "Pobierz" i otwórz plik lokalnie'
+            },
+            {
+              step: 'Sprawdź nazwę pliku',
+              detail: 'Unikaj polskich znaków i spacji w nazwach plików. Użyj: plik_nazwa.pdf zamiast: plik nazwa.pdf'
+            }
+          ],
+          tip: {
+            type: 'warning',
+            title: 'Ograniczenia przeglądarek',
+            content: 'Niektóre przeglądarki mobilne nie obsługują podglądu PDF w iframe. Użyj przycisku Pobierz.'
+          }
+        },
+        {
+          id: 'config-not-applied',
+          category: 'config',
+          icon: '⚙️',
+          iconType: 'config',
+          title: 'Konfiguracja nie jest stosowana',
+          description: 'Zmiany w config.json nie są widoczne na stronie',
+          tags: ['config', 'json'],
+          causes: [
+            'Błąd składni w config.json',
+            'Cache przeglądarki',
+            'Plik nie został wypchnięty na GitHub',
+            'Nieprawidłowa ścieżka do pliku'
+          ],
+          solutions: [
+            {
+              step: 'Zwaliduj config.json',
+              detail: 'Sprawdź czy plik ma poprawną składnię JSON (użyj jsonlint.com)'
+            },
+            {
+              step: 'Wymuś odświeżenie',
+              detail: 'Ctrl+F5 lub Ctrl+Shift+R aby pominąć cache'
+            },
+            {
+              step: 'Sprawdź commit',
+              detail: 'Upewnij się, że zmiany zostały zapisane (git commit) i wysłane (git push)'
+            },
+            {
+              step: 'Sprawdź konsolę',
+              detail: 'F12 → Console - poszukaj komunikatów o błędach ładowania config.json'
+            }
+          ],
+          codeExample: {
+            lang: 'json',
+            good: '{\n  "instructor": {\n    "name": "dr Jan Kowalski",\n    "department": "Wydział Informatyki"\n  },\n  "branding": {\n    "logo_text": "WI",\n    "primary_color": "#0066cc"\n  }\n}'
+          }
+        },
+        {
+          id: 'workflow-failed',
+          category: 'github',
+          icon: '🔴',
+          iconType: 'error',
+          title: 'GitHub Actions workflow failed',
+          description: 'Workflow zakończył się błędem (czerwona ikona)',
+          tags: ['github'],
+          causes: [
+            'Błąd w pliku JSON (announcements lub config)',
+            'Brak uprawnień do zapisu',
+            'Błąd w skrypcie Python',
+            'Przekroczony limit czasowy'
+          ],
+          solutions: [
+            {
+              step: 'Sprawdź logi workflow',
+              detail: 'Actions → Kliknij nieudany workflow → Kliknij job → Rozwiń kroki aby zobaczyć szczegóły błędu'
+            },
+            {
+              step: 'Napraw błąd JSON',
+              detail: 'Jeśli błąd dotyczy walidacji JSON - popraw plik zgodnie z komunikatem'
+            },
+            {
+              step: 'Nadaj uprawnienia',
+              detail: 'Settings → Actions → General → Workflow permissions → Read and write'
+            },
+            {
+              step: 'Uruchom ponownie',
+              detail: 'Actions → Nieudany workflow → Re-run all jobs'
+            }
+          ],
+          tip: {
+            type: 'success',
+            title: 'Automatyczne powiadomienia',
+            content: 'GitHub wysyła email gdy workflow się nie powiedzie. Sprawdź swoją skrzynkę.'
+          }
+        }
+      ];
+
+      const faqs = [
+        {
+          id: 'faq-fork',
+          category: 'github',
+          icon: '🍴',
+          iconType: 'info',
+          title: 'Jak użyć tego szablonu dla mojej grupy?',
+          description: 'Instrukcja tworzenia własnej kopii portalu',
+          tags: ['github'],
+          causes: [],
+          solutions: [
+            {
+              step: 'Zrób Fork repozytorium',
+              detail: 'Kliknij przycisk "Fork" w prawym górnym rogu strony repozytorium'
+            },
+            {
+              step: 'Dostosuj config.json',
+              detail: 'Zmień dane wykładowcy, kolory i teksty na swoje'
+            },
+            {
+              step: 'Włącz GitHub Pages',
+              detail: 'Settings → Pages → Source: Deploy from branch → main / (root)'
+            },
+            {
+              step: 'Gotowe!',
+              detail: 'Twoja strona będzie dostępna pod: https://TWÓJ-LOGIN.github.io/tanski_materialy/'
+            }
+          ]
+        },
+        {
+          id: 'faq-add-material',
+          category: 'github',
+          icon: '📤',
+          iconType: 'info',
+          title: 'Jak dodać nowy materiał?',
+          description: 'Szybka instrukcja dodawania wykładów',
+          tags: ['github'],
+          causes: [],
+          solutions: [
+            {
+              step: 'Przejdź do folderu wyklady/',
+              detail: 'W repozytorium kliknij folder "wyklady"'
+            },
+            {
+              step: 'Kliknij "Add file" → "Upload files"',
+              detail: 'Przeciągnij pliki PDF/DOCX/PPTX lub kliknij "choose your files"'
+            },
+            {
+              step: 'Zatwierdź zmiany',
+              detail: 'Wpisz opis commita (np. "Dodano wykład 5") i kliknij "Commit changes"'
+            },
+            {
+              step: 'Poczekaj na automatyzację',
+              detail: 'GitHub Actions automatycznie zaktualizuje listę materiałów w ciągu 1-2 minut'
+            }
+          ]
+        },
+        {
+          id: 'faq-custom-domain',
+          category: 'github',
+          icon: '🌐',
+          iconType: 'info',
+          title: 'Czy mogę użyć własnej domeny?',
+          description: 'Konfiguracja niestandardowej domeny',
+          tags: ['github'],
+          causes: [],
+          solutions: [
+            {
+              step: 'Kup domenę',
+              detail: 'Zarejestruj domenę u dowolnego rejestratora (np. OVH, home.pl, nazwa.pl)'
+            },
+            {
+              step: 'Skonfiguruj DNS',
+              detail: 'Dodaj rekord CNAME wskazujący na: TWÓJ-LOGIN.github.io'
+            },
+            {
+              step: 'Dodaj domenę w GitHub',
+              detail: 'Settings → Pages → Custom domain → Wpisz swoją domenę'
+            },
+            {
+              step: 'Włącz HTTPS',
+              detail: 'Zaznacz "Enforce HTTPS" (może wymagać kilku minut)'
+            }
+          ]
+        }
+      ];
+
+      // ============================================
+      // RENDER FUNCTIONS
+      // ============================================
+
+      function renderProblem(problem) {
+        const causesHtml = problem.causes.length > 0 ? `
+          <div class="solution-section">
+            <h4>⚠️ Możliwe przyczyny</h4>
+            <ul class="cause-list">
+              ${problem.causes.map(c => `<li>${c}</li>`).join('')}
+            </ul>
+          </div>
+        ` : '';
+
+        const stepsHtml = problem.solutions.length > 0 ? `
+          <div class="solution-section">
+            <h4>✅ Rozwiązanie krok po kroku</h4>
+            <ol class="solution-steps">
+              ${problem.solutions.map(s => `
+                <li>
+                  <strong>${s.step}</strong>
+                  <p>${s.detail}</p>
+                </li>
+              `).join('')}
+            </ol>
+          </div>
+        ` : '';
+
+        const codeHtml = problem.codeExample ? `
+          <div class="solution-section">
+            <h4>💻 Przykład kodu</h4>
+            ${problem.codeExample.bad ? `
+              <p style="color: var(--error); font-weight: 600; margin-bottom: 8px;">❌ Nieprawidłowo:</p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-lang">${problem.codeExample.lang}</span>
+                  <button class="copy-btn" onclick="copyCode(this)">📋 Kopiuj</button>
+                </div>
+                <div class="code-content"><pre>${escapeHtml(problem.codeExample.bad)}</pre></div>
+              </div>
+            ` : ''}
+            <p style="color: var(--success); font-weight: 600; margin: 16px 0 8px;">✅ Prawidłowo:</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">${problem.codeExample.lang}</span>
+                <button class="copy-btn" onclick="copyCode(this)">📋 Kopiuj</button>
+              </div>
+              <div class="code-content"><pre>${escapeHtml(problem.codeExample.good)}</pre></div>
+            </div>
+          </div>
+        ` : '';
+
+        const tipHtml = problem.tip ? `
+          <div class="tip-box ${problem.tip.type}">
+            <span class="tip-icon">${problem.tip.type === 'success' ? '💡' : problem.tip.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+            <div class="tip-content">
+              <strong>${problem.tip.title}</strong>
+              ${problem.tip.content}
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <article class="problem-card" data-id="${problem.id}" data-category="${problem.category}" data-search="${problem.title.toLowerCase()} ${problem.description.toLowerCase()} ${problem.tags.join(' ')}">
+            <div class="problem-header" onclick="toggleProblem('${problem.id}')">
+              <div class="problem-icon ${problem.iconType}">${problem.icon}</div>
+              <div class="problem-content">
+                <h3 class="problem-title">${problem.title}</h3>
+                <p class="problem-desc">${problem.description}</p>
+                <div class="problem-tags">
+                  ${problem.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('')}
+                </div>
+              </div>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="solution-panel">
+              <div class="solution-content">
+                ${causesHtml}
+                ${stepsHtml}
+                ${codeHtml}
+                ${tipHtml}
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function escapeHtml(str) {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return str.replace(/[&<>"']/g, m => map[m]);
+      }
+
+      // ============================================
+      // INTERACTION FUNCTIONS
+      // ============================================
+
+      window.toggleProblem = function(id) {
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if (card) {
+          card.classList.toggle('expanded');
+        }
+      };
+
+      window.copyCode = function(btn) {
+        const codeBlock = btn.closest('.code-block');
+        const code = codeBlock.querySelector('pre').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+          btn.textContent = '✓ Skopiowano!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = '📋 Kopiuj';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      };
+
+      function filterByCategory(category) {
+        const cards = document.querySelectorAll('.problem-card');
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+          const cardCategory = card.dataset.category;
+          const matchesCategory = category === 'all' || cardCategory === category;
+          const matchesSearch = card.dataset.search.includes(currentSearch);
+          
+          if (matchesCategory && matchesSearch) {
+            card.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+
+        // Update active button
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.category === category);
+        });
+
+        updateStats(visibleCount);
+      }
+
+      let currentSearch = '';
+      let currentCategory = 'all';
+
+      function filterBySearch(query) {
+        currentSearch = query.toLowerCase();
+        const cards = document.querySelectorAll('.problem-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const matchesSearch = card.dataset.search.includes(currentSearch);
+          const matchesCategory = currentCategory === 'all' || card.dataset.category === currentCategory;
+          
+          if (matchesSearch && matchesCategory) {
+            card.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+
+        updateStats(visibleCount);
+      }
+
+      function updateStats(count) {
+        const stats = document.getElementById('searchStats');
+        if (currentSearch || currentCategory !== 'all') {
+          stats.textContent = `Znaleziono: ${count} ${count === 1 ? 'problem' : count < 5 ? 'problemy' : 'problemów'}`;
+        } else {
+          stats.textContent = 'Wyświetlono wszystkie problemy';
+        }
+      }
+
+      function updateCounts() {
+        const allProblems = [...problems, ...faqs];
+        document.getElementById('countAll').textContent = allProblems.length;
+        document.getElementById('countJson').textContent = allProblems.filter(p => p.category === 'json').length;
+        document.getElementById('countGithub').textContent = allProblems.filter(p => p.category === 'github').length;
+        document.getElementById('countDisplay').textContent = allProblems.filter(p => p.category === 'display').length;
+        document.getElementById('countConfig').textContent = allProblems.filter(p => p.category === 'config').length;
+      }
+
+      // ============================================
+      // THEME
+      // ============================================
+
+      function initTheme() {
+        const saved = localStorage.getItem('tanski_theme');
+        if (saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('tanski_theme', 'light');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('tanski_theme', 'dark');
+          }
+        });
+      }
+
+      // ============================================
+      // INIT
+      // ============================================
+
+      function init() {
+        initTheme();
+
+        // Render problems
+        const problemsGrid = document.getElementById('problemsGrid');
+        problemsGrid.innerHTML = problems.map(renderProblem).join('');
+
+        // Render FAQs
+        const faqGrid = document.getElementById('faqGrid');
+        faqGrid.innerHTML = faqs.map(renderProblem).join('');
+
+        // Update counts
+        updateCounts();
+
+        // Search handler
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+          filterBySearch(e.target.value);
+        });
+
+        // Category handlers
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            currentCategory = btn.dataset.category;
+            filterByCategory(currentCategory);
+          });
+        });
+
+        // Expand first problem
+        const firstProblem = document.querySelector('.problem-card');
+        if (firstProblem) {
+          firstProblem.classList.add('expanded');
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+  </script>
+</body>
+</html>

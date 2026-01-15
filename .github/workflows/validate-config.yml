@@ -1,0 +1,110 @@
+name: Validate Config
+
+on:
+  push:
+    paths:
+      - 'config.json'
+  pull_request:
+    paths:
+      - 'config.json'
+
+jobs:
+  validate:
+    name: 🔍 Walidacja konfiguracji
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ✅ Validate JSON syntax
+        run: |
+          echo "🔍 Sprawdzanie składni config.json..."
+          if python3 -c "import json; json.load(open('config.json'))"; then
+            echo "✅ Składnia JSON poprawna"
+          else
+            echo "❌ Błąd składni JSON"
+            exit 1
+          fi
+
+      - name: 📋 Validate required fields
+        run: |
+          python3 << 'EOF'
+          import json
+          import sys
+
+          print("📋 Walidacja wymaganych pól...")
+          
+          with open('config.json', 'r', encoding='utf-8') as f:
+              config = json.load(f)
+
+          required = {
+              'site': ['title', 'language'],
+              'instructor': ['name', 'department', 'university'],
+              'branding': ['logo_text', 'primary_color', 'accent_color'],
+              'footer': ['copyright', 'note'],
+              'features': ['dark_mode', 'pdf_preview', 'search', 'filters']
+          }
+
+          errors = []
+          warnings = []
+          
+          for section, fields in required.items():
+              if section not in config:
+                  errors.append(f"Brak sekcji: {section}")
+              else:
+                  for field in fields:
+                      if field not in config[section]:
+                          errors.append(f"Brak pola: {section}.{field}")
+                      elif config[section][field] == "" or config[section][field] is None:
+                          warnings.append(f"Puste pole: {section}.{field}")
+
+          # Walidacja kolorów HEX
+          import re
+          hex_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
+          
+          if 'branding' in config:
+              for color_field in ['primary_color', 'accent_color']:
+                  if color_field in config['branding']:
+                      color = config['branding'][color_field]
+                      if not hex_pattern.match(color):
+                          errors.append(f"Nieprawidłowy kolor HEX: branding.{color_field} = '{color}'")
+
+          # Walidacja języka
+          if 'site' in config and 'language' in config['site']:
+              lang = config['site']['language']
+              if lang not in ['pl', 'en', 'de', 'fr', 'es']:
+                  warnings.append(f"Nieznany język: {lang} (obsługiwane: pl, en, de, fr, es)")
+
+          if warnings:
+              print("⚠️  Ostrzeżenia:")
+              for w in warnings:
+                  print(f"   • {w}")
+
+          if errors:
+              print("❌ Błędy walidacji:")
+              for e in errors:
+                  print(f"   • {e}")
+              sys.exit(1)
+          else:
+              print("✅ Wszystkie wymagane pola są poprawne")
+              print("")
+              print("📊 Podsumowanie konfiguracji:")
+              print(f"   🎓 Wykładowca: {config['instructor']['name']}")
+              print(f"   🏛️  Wydział: {config['instructor']['department']}")
+              print(f"   🎨 Kolor główny: {config['branding']['primary_color']}")
+              print(f"   🌐 Język: {config['site']['language']}")
+          EOF
+
+      - name: 📊 Config Summary
+        if: success()
+        run: |
+          echo ""
+          echo "═══════════════════════════════════════════"
+          echo "✅ Konfiguracja jest poprawna i gotowa!"
+          echo "═══════════════════════════════════════════"
