@@ -1,7 +1,7 @@
 /**
  * Portal dydaktyczny PWr - Wydział Medyczny
  * Profesjonalna aplikacja front-end
- * @version 2.0.0
+ * @version 2.1.0
  */
 (function() {
   'use strict';
@@ -21,6 +21,15 @@
   }
 
   var BASE_PATH = getBasePath();
+
+  // Domyślna konfiguracja (fallback)
+  var siteConfig = {
+    site: { title: 'Materiały dydaktyczne', language: 'pl' },
+    instructor: { name: '', department: '', university: 'PWr', subtitle: '' },
+    branding: { logo_text: 'PWr', primary_color: '#9A342D', accent_color: '#00b2ba' },
+    footer: { copyright: '', note: '' },
+    features: { dark_mode: true, pdf_preview: true, search: true, filters: true }
+  };
 
   /**
    * Buduje pełny URL z relatywnej ścieżki
@@ -697,6 +706,103 @@
   }
 
   // ============================================
+  // KONFIGURACJA STRONY
+  // ============================================
+
+  /**
+   * Ładuje plik config.json i aktualizuje elementy strony
+   */
+  function loadConfig() {
+    var url = buildUrl('config.json') + '?v=' + Date.now();
+    
+    return fetchJson(url, 5000)
+      .then(function(config) {
+        // Scal z domyślną konfiguracją
+        if (config.site) {
+          siteConfig.site = Object.assign({}, siteConfig.site, config.site);
+        }
+        if (config.instructor) {
+          siteConfig.instructor = Object.assign({}, siteConfig.instructor, config.instructor);
+        }
+        if (config.branding) {
+          siteConfig.branding = Object.assign({}, siteConfig.branding, config.branding);
+        }
+        if (config.footer) {
+          siteConfig.footer = Object.assign({}, siteConfig.footer, config.footer);
+        }
+        if (config.features) {
+          siteConfig.features = Object.assign({}, siteConfig.features, config.features);
+        }
+        
+        applyConfig();
+        return siteConfig;
+      })
+      .catch(function(err) {
+        console.warn('Nie udało się wczytać config.json, używam domyślnych wartości:', err);
+        return siteConfig;
+      });
+  }
+
+  /**
+   * Stosuje konfigurację do elementów DOM
+   */
+  function applyConfig() {
+    // Aktualizuj nagłówek - tytuł (imię wykładowcy)
+    var titleEls = $$('.brandText .title');
+    titleEls.forEach(function(el) {
+      if (siteConfig.instructor.name) {
+        el.textContent = siteConfig.instructor.name;
+      }
+    });
+
+    // Aktualizuj nagłówek - podtytuł
+    var subtitleEls = $$('.brandText .subtitle');
+    subtitleEls.forEach(function(el) {
+      var parts = [];
+      if (siteConfig.instructor.department) {
+        parts.push(siteConfig.instructor.department);
+      }
+      if (siteConfig.instructor.subtitle) {
+        parts.push(siteConfig.instructor.subtitle);
+      }
+      if (parts.length > 0) {
+        el.textContent = parts.join(' • ');
+      }
+    });
+
+    // Aktualizuj logo
+    var markEls = $$('.mark');
+    markEls.forEach(function(el) {
+      if (siteConfig.branding.logo_text) {
+        el.textContent = siteConfig.branding.logo_text;
+      }
+    });
+
+    // Aktualizuj stopkę
+    var footerEls = $$('.footer');
+    footerEls.forEach(function(el) {
+      var html = '';
+      if (siteConfig.footer.copyright) {
+        html += '<span>' + escapeHtml(siteConfig.footer.copyright) + '</span>';
+      }
+      if (siteConfig.footer.note) {
+        if (html) html += '<span class="sep">•</span>';
+        html += '<span class="muted">' + escapeHtml(siteConfig.footer.note) + '</span>';
+      }
+      if (html) {
+        el.innerHTML = html;
+      }
+    });
+
+    // Aktualizuj tytuł strony
+    if (siteConfig.site.title) {
+      var page = document.body.getAttribute('data-page') || '';
+      var pageTitle = page === 'announcements' ? 'Ogłoszenia' : 'Materiały dydaktyczne';
+      document.title = pageTitle + ' — ' + siteConfig.instructor.university + ' ' + siteConfig.instructor.department;
+    }
+  }
+
+  // ============================================
   // INICJALIZACJA
   // ============================================
 
@@ -705,13 +811,16 @@
       initTheme();
       initModal();
 
-      var page = document.body.getAttribute('data-page') || '';
+      // Załaduj konfigurację, a następnie inicjalizuj odpowiednią stronę
+      loadConfig().then(function() {
+        var page = document.body.getAttribute('data-page') || '';
 
-      if (page === 'materials') {
-        initMaterials();
-      } else if (page === 'announcements') {
-        initAnnouncements();
-      }
+        if (page === 'materials') {
+          initMaterials();
+        } else if (page === 'announcements') {
+          initAnnouncements();
+        }
+      });
     } catch (err) {
       console.error('Błąd inicjalizacji:', err);
       setStatus('Błąd inicjalizacji strony', 'bad');

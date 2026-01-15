@@ -1,0 +1,27 @@
+{
+  "site": {
+    "title": "Materiały dydaktyczne",
+    "language": "pl"
+  },
+  "instructor": {
+    "name": "gen. dr hab. lek. Wojciech Tański, prof. PWr",
+    "department": "Wydział Medyczny",
+    "university": "PWr",
+    "subtitle": "materiały dydaktyczne i ogłoszenia"
+  },
+  "branding": {
+    "logo_text": "PWr",
+    "primary_color": "#9A342D",
+    "accent_color": "#00b2ba"
+  },
+  "footer": {
+    "copyright": "© PWr • Wydział Medyczny",
+    "note": "Udostępnione na wykładzie"
+  },
+  "features": {
+    "dark_mode": true,
+    "pdf_preview": true,
+    "search": true,
+    "filters": true
+  }
+}

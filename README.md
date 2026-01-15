@@ -181,7 +181,49 @@ git push origin main
 
 ## ⚙️ Konfiguracja
 
-### 🌐 GitHub Pages
+### � Personalizacja strony
+
+Edytuj plik `config.json`, aby dostosować stronę do swoich potrzeb:
+
+```json
+{
+  "site": {
+    "title": "Materiały dydaktyczne",
+    "language": "pl"
+  },
+  "instructor": {
+    "name": "Twoje imię i tytuł",
+    "department": "Nazwa wydziału",
+    "university": "PWr",
+    "subtitle": "materiały dydaktyczne i ogłoszenia"
+  },
+  "branding": {
+    "logo_text": "PWr",
+    "primary_color": "#9A342D",
+    "accent_color": "#00b2ba"
+  },
+  "footer": {
+    "copyright": "© PWr • Wydział Medyczny",
+    "note": "Udostępnione na wykładzie"
+  },
+  "features": {
+    "dark_mode": true,
+    "pdf_preview": true,
+    "search": true,
+    "filters": true
+  }
+}
+```
+
+| Pole | Opis |
+|------|------|
+| `instructor.name` | Imię i tytuł wykładowcy (wyświetlane w nagłówku) |
+| `instructor.department` | Nazwa wydziału |
+| `branding.logo_text` | Tekst w logo (max 3-4 znaki) |
+| `footer.copyright` | Tekst copyright w stopce |
+| `footer.note` | Dodatkowa notatka w stopce |
+
+### �🌐 GitHub Pages
 
 <details>
 <summary><strong>Kliknij, aby rozwinąć instrukcję</strong></summary>
@@ -215,6 +257,7 @@ git push origin main
 tanski_materialy/
 ├── 📄 index.html              # Strona główna (ogłoszenia)
 ├── 📄 materials.html          # Strona z materiałami
+├── ⚙️ config.json             # Plik konfiguracyjny (personalizacja)
 ├── 📁 assets/
 │   ├── 🎨 css/styles.css      # Style aplikacji
 │   └── ⚡ js/app.js           # Logika JavaScript
