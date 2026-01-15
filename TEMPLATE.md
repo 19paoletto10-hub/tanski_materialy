@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 📦 Szablon Portalu Dydaktycznego
 
@@ -358,32 +358,49 @@ Kliknij **"Commit changes"** → **"Commit changes"**
 ```json
 {
   "site": {
-    "title": "Materiały dydaktyczne",    // Tytuł strony w zakładce przeglądarki
-    "language": "pl"                      // Język: pl, en, de, fr, es
+    "title": "Materiały dydaktyczne",
+    "language": "pl"
   },
   "instructor": {
-    "name": "Tytuł + Imię + Nazwisko",   // Wyświetlane w nagłówku
-    "department": "Nazwa wydziału",       // Pod nazwiskiem
-    "university": "Skrót uczelni",        // Np. PWr, AGH, UJ
-    "subtitle": "opis strony"             // Dodatkowy tekst
+    "name": "Tytuł + Imię + Nazwisko",
+    "department": "Nazwa wydziału",
+    "university": "Skrót uczelni",
+    "subtitle": "opis strony"
   },
   "branding": {
-    "logo_text": "PWr",                   // Tekst w logo (max 3-4 znaki)
-    "primary_color": "#9A342D",           // Kolor główny (HEX)
-    "accent_color": "#00b2ba"             // Kolor akcentu (HEX)
+    "logo_text": "PWr",
+    "primary_color": "#9A342D",
+    "accent_color": "#00b2ba"
   },
   "footer": {
-    "copyright": "© Tekst copyright",     // Tekst w stopce
-    "note": "Dodatkowa notatka"           // Opcjonalna notatka
+    "copyright": "© Tekst copyright",
+    "note": "Dodatkowa notatka"
   },
   "features": {
-    "dark_mode": true,                    // Włącz/wyłącz tryb ciemny
-    "pdf_preview": true,                  // Podgląd PDF w modalu
-    "search": true,                       // Wyszukiwarka
-    "filters": true                       // Filtry materiałów
+    "dark_mode": true,
+    "pdf_preview": true,
+    "search": true,
+    "filters": true
   }
 }
 ```
+
+**Opis parametrów:**
+
+| Parametr | Opis |
+|----------|------|
+| `site.title` | Tytuł strony w zakładce przeglądarki |
+| `site.language` | Język: pl, en, de, fr, es |
+| `instructor.name` | Wyświetlane w nagłówku |
+| `instructor.department` | Pod nazwiskiem |
+| `instructor.university` | Skrót uczelni (np. PWr, AGH, UJ) |
+| `instructor.subtitle` | Dodatkowy tekst opisu |
+| `branding.logo_text` | Tekst w logo (max 3-4 znaki) |
+| `branding.primary_color` | Kolor główny (format HEX) |
+| `branding.accent_color` | Kolor akcentu (format HEX) |
+| `footer.copyright` | Tekst copyright w stopce |
+| `footer.note` | Opcjonalna notatka w stopce |
+| `features.*` | Włącz/wyłącz funkcje (true/false) |
 
 ### Popularne schematy kolorów
 
@@ -483,7 +500,7 @@ wyklad_02_podstawy_java.pptx
 cwiczenia_lab3.pdf
 
 ❌ Unikaj:
-Wykład 1 - Wprowadzenie!.pdf    (spacje, znaki specjalne)
+Wykład 1 - Wprowadzenie!.pdf    (spacies, znaki specjalne)
 WYKŁAD.PDF                       (wielkie litery)
 nowy.pdf                         (niejasna nazwa)
 ```
@@ -550,7 +567,6 @@ nowy.pdf                         (niejasna nazwa)
   "tags": ["info"]
 }
 ```
-
 4. Zatwierdź commit
 
 ⚠️ **Uwaga:** Pamiętaj o przecinkach między elementami tablicy!
@@ -565,8 +581,8 @@ Edytuj `config.json`:
 
 ```json
 "branding": {
-  "primary_color": "#0066CC",   // Niebieski
-  "accent_color": "#FF6600"     // Pomarańczowy
+  "primary_color": "#0066CC",
+  "accent_color": "#FF6600"
 }
 ```
 
@@ -584,11 +600,11 @@ Zmienne kolorów znajdziesz na początku pliku:
 
 ```css
 :root {
-  --pwr-red: #9A342D;      /* Kolor logo */
-  --med-teal: #00b2ba;     /* Kolor akcentu */
-  --bg: #f6f7f9;           /* Tło strony */
-  --card: #ffffff;         /* Tło kart */
-  --text: #101828;         /* Kolor tekstu */
+  --pwr-red: #9A342D;
+  --med-teal: #00b2ba;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #101828;
 }
 ```
 
@@ -645,12 +661,7 @@ Wymaga konfiguracji DNS u rejestratora domeny.
 <details>
 <summary><strong>📊 Czy mogę śledzić statystyki odwiedzin?</strong></summary>
 
-Dodaj kod śledzenia (np. Google Analytics) do plików HTML:
-
-```html
-<!-- Przed </head> -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_ID"></script>
-```
+Dodaj kod śledzenia (np. Google Analytics) do plików HTML w nagłówku strony.
 
 </details>
 
@@ -709,11 +720,10 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 Twój portal dydaktyczny jest gotowy do użycia.
 
-[![Otwórz stronę](https://img.shields.io/badge/🌐_Otwórz_swoją_stronę-GitHub_Pages-success?style=for-the-badge)](#)
+**[🌐 Otwórz swoją stronę](https://19paoletto10-hub.github.io/tanski_materialy/)**
 
 ---
 
 **Szablon stworzony z ❤️ dla społeczności akademickiej**
 
 </div>
-]]>
