@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-01-15T01:59:36Z"
+    "generated_at": "2026-01-15T02:25:32Z"
   },
   "items": [
     {
@@ -28,6 +28,17 @@
       "description": "Plik: PDF",
       "url": "wyklady/2026-01-13_Badania_dodatkowe_laboratoryjne_i_obrazowe_w_diagnostyce_reumatologicznej.pdf",
       "preview": "wyklady/2026-01-13_Badania_dodatkowe_laboratoryjne_i_obrazowe_w_diagnostyce_reumatologicznej.pdf"
+    },
+    {
+      "id": "wyklady-stany-zagrajace-w-reumatologii-final-v2-pptx",
+      "title": "stany zagrajace w reumatologii final v2",
+      "type": "PPTX",
+      "year": "",
+      "date": "",
+      "tags": [],
+      "description": "Plik: PPTX",
+      "url": "wyklady/stany_zagrajace_w_reumatologii_final_v2.pptx",
+      "preview": ""
     }
   ]
 }
