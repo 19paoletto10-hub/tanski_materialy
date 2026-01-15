@@ -1,6 +1,11 @@
 :root{
   --pwr-red:#9A342D;
   --med-teal:#00b2ba;
+  
+  /* Fallback kolory dla przeglądarek bez color-mix */
+  --teal-text:#007a80;
+  --red-text:#7a2a24;
+  --warn-text:#8a5000;
 
   --bg:#f6f7f9;
   --card:#ffffff;
@@ -27,6 +32,11 @@
   --muted:rgba(230,233,239,.72);
   --line:rgba(255,255,255,.14);
   --shadow: 0 18px 40px rgba(0,0,0,.45);
+  
+  /* Fallback kolory dla dark mode */
+  --teal-text:#2dd4d9;
+  --red-text:#e07068;
+  --warn-text:#f5a623;
 }
 
 *{box-sizing:border-box}
@@ -149,9 +159,14 @@ a{color:inherit}
   color: var(--text);
   margin-bottom: 10px;
 }
-.badge.ok{border-color: rgba(0,178,186,.30); background: rgba(0,178,186,.07); color: color-mix(in oklab, var(--med-teal), var(--text) 15%)}
-.badge.bad{border-color: rgba(154,52,45,.35); background: rgba(154,52,45,.10); color: color-mix(in oklab, var(--pwr-red), var(--text) 10%)}
-.badge.warn{border-color: rgba(180,83,9,.35); background: rgba(180,83,9,.10); color: color-mix(in oklab, #b45309, var(--text) 10%)}
+.badge.ok{border-color: rgba(0,178,186,.30); background: rgba(0,178,186,.07); color: var(--teal-text)}
+.badge.bad{border-color: rgba(154,52,45,.35); background: rgba(154,52,45,.10); color: var(--red-text)}
+.badge.warn{border-color: rgba(180,83,9,.35); background: rgba(180,83,9,.10); color: var(--warn-text)}
+@supports (color: color-mix(in oklab, red, blue)) {
+  .badge.ok { color: color-mix(in oklab, var(--med-teal), var(--text) 15%); }
+  .badge.bad { color: color-mix(in oklab, var(--pwr-red), var(--text) 10%); }
+  .badge.warn { color: color-mix(in oklab, #b45309, var(--text) 10%); }
+}
 
 .hint{margin: 6px 0 10px}
 .link{color: var(--muted); text-decoration: underline; text-underline-offset: 3px}
@@ -223,10 +238,14 @@ a{color:inherit}
   border-radius: 14px;
   border:1px solid rgba(0,178,186,.28);
   background: rgba(0,178,186,.08);
-  color: color-mix(in oklab, var(--med-teal), var(--text) 15%);
+  color: var(--teal-text);
   font-weight: 900;
   cursor:pointer;
   text-decoration:none;
+  transition: border-color .12s ease, background .12s ease;
+}
+@supports (color: color-mix(in oklab, red, blue)) {
+  .btn { color: color-mix(in oklab, var(--med-teal), var(--text) 15%); }
 }
 .btn:hover{border-color: rgba(0,178,186,.40); background: rgba(0,178,186,.10)}
 .btn.ghost{
@@ -310,12 +329,17 @@ a{color:inherit}
   font-size: 12px;
 }
 .pill .dot{width:8px; height:8px; border-radius:999px; background: rgba(16,24,40,.28)}
-.pill.teal{border-color: rgba(0,178,186,.28); background: rgba(0,178,186,.06); color: color-mix(in oklab, var(--med-teal), var(--text) 20%)}
+.pill.teal{border-color: rgba(0,178,186,.28); background: rgba(0,178,186,.06); color: var(--teal-text)}
 .pill.teal .dot{background: rgba(0,178,186,.85)}
-.pill.red{border-color: rgba(154,52,45,.28); background: rgba(154,52,45,.08); color: color-mix(in oklab, var(--pwr-red), var(--text) 20%)}
+.pill.red{border-color: rgba(154,52,45,.28); background: rgba(154,52,45,.08); color: var(--red-text)}
 .pill.red .dot{background: rgba(154,52,45,.85)}
-.pill.warn{border-color: rgba(180,83,9,.30); background: rgba(180,83,9,.08); color: color-mix(in oklab, #b45309, var(--text) 20%)}
+.pill.warn{border-color: rgba(180,83,9,.30); background: rgba(180,83,9,.08); color: var(--warn-text)}
 .pill.warn .dot{background: rgba(180,83,9,.85)}
+@supports (color: color-mix(in oklab, red, blue)) {
+  .pill.teal { color: color-mix(in oklab, var(--med-teal), var(--text) 20%); }
+  .pill.red { color: color-mix(in oklab, var(--pwr-red), var(--text) 20%); }
+  .pill.warn { color: color-mix(in oklab, #b45309, var(--text) 20%); }
+}
 
 .cardBody{padding: 0 14px 12px; color: var(--muted); font-size: 13px; line-height: 1.45}
 .cardBottom{
@@ -353,6 +377,7 @@ a{color:inherit}
 
 /* Modal */
 .modal{position:fixed; inset:0; display:grid; place-items:center; z-index:50}
+.modal[hidden]{display:none}
 .modalOverlay{position:absolute; inset:0; background: rgba(0,0,0,.42)}
 .modalCard{
   position:relative;

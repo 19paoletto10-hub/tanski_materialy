@@ -1,6 +1,33 @@
 {
   "meta": {
-    "generated_at": "2026-01-15T01:43:00Z"
+    "generated_at": "2026-01-15T01:58:03Z"
   },
-  "items": []
+  "items": [
+    {
+      "id": "wyklady-2026-01-15-rzs-stany-nagle-postepowanie-pdf",
+      "title": "RZS Stany nagle postepowanie",
+      "type": "PDF",
+      "year": "2026",
+      "date": "2026-01-15",
+      "tags": [
+        "2026"
+      ],
+      "description": "Plik: PDF",
+      "url": "wyklady/2026-01-15_RZS_Stany_nagle_postepowanie.pdf",
+      "preview": "wyklady/2026-01-15_RZS_Stany_nagle_postepowanie.pdf"
+    },
+    {
+      "id": "wyklady-2026-01-13-badania-dodatkowe-laboratoryjne-i-obrazowe-w-diagnostyce-reumatologicznej-pdf",
+      "title": "Badania dodatkowe laboratoryjne i obrazowe w diagnostyce reumatologicznej",
+      "type": "PDF",
+      "year": "2026",
+      "date": "2026-01-13",
+      "tags": [
+        "2026"
+      ],
+      "description": "Plik: PDF",
+      "url": "wyklady/2026-01-13_Badania_dodatkowe_laboratoryjne_i_obrazowe_w_diagnostyce_reumatologicznej.pdf",
+      "preview": "wyklady/2026-01-13_Badania_dodatkowe_laboratoryjne_i_obrazowe_w_diagnostyce_reumatologicznej.pdf"
+    }
+  ]
 }

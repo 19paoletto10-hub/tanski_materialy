@@ -12,8 +12,10 @@
 
   const BASE_URL = getBaseUrl();
   const u = (path) => {
+    if(!path || typeof path !== 'string') return '';
     // Usuń "./" z początku ścieżki jeśli istnieje
-    const cleanPath = path.replace(/^\.\//, '');
+    const cleanPath = path.replace(/^\.\//,  '').trim();
+    if(!cleanPath) return '';
     return BASE_URL + cleanPath;
   };
 
@@ -239,7 +241,9 @@
       const url = (m.url || "").trim();
       const hasUrl = url.length > 0;
       const isPdf = hasUrl && /\.pdf$/i.test(url);
-      const href = hasUrl ? escapeHtml(encodeURI(u(url))) : "#";
+      // Unikaj podwójnego kodowania - encodeURI tylko dla surowej ścieżki
+      const fullUrl = hasUrl ? u(url) : '';
+      const href = hasUrl && fullUrl ? escapeHtml(fullUrl) : "#";
 
       const pills = [
         typeP ? `<span class="pill teal"><span class="dot"></span>${typeP}</span>` : "",
@@ -407,6 +411,10 @@
     }).join("");
   };
 
+  // Przechowujemy referencję do aktualnych ogłoszeń, aby uniknąć wielokrotnego dodawania listenerów
+  let announcementsData = null;
+  let announcementListenersBound = false;
+
   const initAnnouncements = async () => {
     const grid = $("#aGrid");
     if(!grid) return;
@@ -431,18 +439,28 @@
         return bd.localeCompare(ad);
       });
 
+      announcementsData = ann;
       fillAnnouncementFilters(ann);
       renderAnnouncements(ann);
 
-      const rer = debounce(() => renderAnnouncements(ann), 160);
-      $("#aQuery")?.addEventListener("input", rer);
-      $("#aTag")?.addEventListener("change", () => renderAnnouncements(ann));
-      $("#aShowExpired")?.addEventListener("change", () => initAnnouncements());
-      $("#aReset")?.addEventListener("click", () => {
-        $("#aQuery").value = "";
-        $("#aTag").value = "";
-        renderAnnouncements(ann);
-      });
+      // Binduj listenery tylko raz, aby uniknąć powielania
+      if(!announcementListenersBound) {
+        announcementListenersBound = true;
+        
+        const rer = debounce(() => {
+          if(announcementsData) renderAnnouncements(announcementsData);
+        }, 160);
+        $("#aQuery")?.addEventListener("input", rer);
+        $("#aTag")?.addEventListener("change", () => {
+          if(announcementsData) renderAnnouncements(announcementsData);
+        });
+        $("#aShowExpired")?.addEventListener("change", () => initAnnouncements());
+        $("#aReset")?.addEventListener("click", () => {
+          $("#aQuery").value = "";
+          $("#aTag").value = "";
+          if(announcementsData) renderAnnouncements(announcementsData);
+        });
+      }
 
       const gen = meta?.generated_at ? ` • aktualizacja: ${meta.generated_at}` : "";
       toast(`Ogłoszenia: ${ann.length}${gen}`, "ok");
